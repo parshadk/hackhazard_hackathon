@@ -1,0 +1,60 @@
+# Node.js dependencies
+/node_modules/
+/**/node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build directories
+/dist/
+/build/
+/**/dist/
+/**/build/
+
+# Dependency directories
+/.pnp
+.pnp.js
+
+# TypeScript
+*.tsbuildinfo
+
+# Environment variables
+.env
+.env.*.local
+
+# IDEs and editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# MacOS
+.DS_Store
+
+# Linux
+*.swp
+
+# Windows
+Thumbs.db
+ehthumbs.db
+
+# Monorepo tools
+/.yarn/
+.pnp.*
+/lerna-debug.log
+/.turbo/
+
+# Coverage
+/coverage/
+/**/coverage/
+
+# Temporary files
+/tmp/
+/**/tmp/
