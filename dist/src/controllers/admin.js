@@ -57,20 +57,26 @@ exports.addLectures = (0, TryCatch_js_1.default)((req, res) => __awaiter(void 0,
 }));
 exports.deleteLecture = (0, TryCatch_js_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const lecture = yield Lecture_js_1.Lecture.findById(req.params.id);
-    (0, fs_1.rm)(lecture.video, () => {
-        console.log("Video deleted");
-    });
+    if (!lecture)
+        return res.status(404).json({ message: "Lecture not found" });
+    (0, fs_1.rm)(lecture.video, () => { console.log("Video deleted"); });
     yield lecture.deleteOne();
     res.json({ message: "Lecture Deleted" });
 }));
 const unlinkAsync = (0, util_1.promisify)(fs_2.default.unlink);
 exports.deleteCourse = (0, TryCatch_js_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const course = yield Courses_js_1.Courses.findById(req.params.id);
+    if (!course) {
+        return res.status(404).json({ message: "Course not found" });
+    }
     const lectures = yield Lecture_js_1.Lecture.find({ course: course._id });
     yield Promise.all(lectures.map((lecture) => __awaiter(void 0, void 0, void 0, function* () {
         yield unlinkAsync(lecture.video);
         console.log("video deleted");
     })));
+    if (!course) {
+        return res.status(404).json({ message: "Course not found" });
+    }
     (0, fs_1.rm)(course.image, () => {
         console.log("image deleted");
     });
@@ -104,6 +110,9 @@ exports.updateRole = (0, TryCatch_js_1.default)((req, res) => __awaiter(void 0, 
             message: "This endpoint is assign to superadmin",
         });
     const user = yield User_js_1.User.findById(req.params.id);
+    if (!user) {
+        return res.status(404).json({ message: "User not found" });
+    }
     if (user.role === "user") {
         user.role = "admin";
         yield user.save();

@@ -1,18 +1,6 @@
-import mongoose, { Document, Schema, Model } from 'mongoose';
+import mongoose, { Schema, model, Document } from 'mongoose';
 
-export interface IUser extends Document {
-  name: string;
-  email: string;
-  password: string;
-  role: string;
-  mainrole: string;
-  subscription: mongoose.Types.ObjectId[];
-  resetPasswordExpire?: Date;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-const userSchema: Schema<IUser> = new mongoose.Schema(
+const userSchema = new Schema(
   {
     name: {
       type: String,
@@ -29,16 +17,16 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
     },
     role: {
       type: String,
-      default: "user",
+      default: 'user',
     },
     mainrole: {
       type: String,
-      default: "user",
+      default: 'user',
     },
     subscription: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Course",
+        ref: 'Course',
       },
     ],
     resetPasswordExpire: {
@@ -48,6 +36,6 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
   { timestamps: true }
 );
 
-const User: Model<IUser> = mongoose.model<IUser>("User", userSchema);
+export const User = model('User', userSchema);
 
 export default User;

@@ -6,6 +6,9 @@ import { User } from "../models/User.js";
 import crypto from "crypto";
 import { Payment } from "../models/Payment.js";
 import { Progress } from "../models/Progress.js";
+import { ObjectId } from 'mongoose';
+import mongoose from 'mongoose'; // Import mongoose
+
 import { Request, Response } from "express";
 
 // Helper function to ensure env vars exist
@@ -30,7 +33,7 @@ export const getAllCourses = TryCatch(async (req: Request, res: Response) => {
   res.json({ courses });
 });
 
-export const getSingleCourse = TryCatch(async (req: Request, res: Response) => {
+export const getSingleCourse = TryCatch(async (req: any, res: any) => {
   const course = await Courses.findById(req.params.id);
   
   if (!course) {
@@ -40,7 +43,7 @@ export const getSingleCourse = TryCatch(async (req: Request, res: Response) => {
   res.json({ course });
 });
 
-export const fetchLectures = TryCatch(async (req: AuthenticatedRequest, res: Response) => {
+export const fetchLectures = TryCatch(async (req: any, res: any) => {
   const lectures = await Lecture.find({ course: req.params.id });
   const user = await User.findById(req.user._id);
 
@@ -55,7 +58,7 @@ export const fetchLectures = TryCatch(async (req: AuthenticatedRequest, res: Res
   res.json({ lectures });
 });
 
-export const fetchLecture = TryCatch(async (req: AuthenticatedRequest, res: Response) => {
+export const fetchLecture = TryCatch(async (req: any, res: any) => {
   const lecture = await Lecture.findById(req.params.id);
   if (!lecture) return res.status(404).json({ message: "Lecture not found" });
 
@@ -71,12 +74,12 @@ export const fetchLecture = TryCatch(async (req: AuthenticatedRequest, res: Resp
   res.json({ lecture });
 });
 
-export const getMyCourses = TryCatch(async (req: AuthenticatedRequest, res: Response) => {
+export const getMyCourses = TryCatch(async (req: any, res: any) => {
   const courses = await Courses.find({ _id: { $in: req.user.subscription } });
   res.json({ courses });
 });
 
-export const checkout = TryCatch(async (req: AuthenticatedRequest, res: Response) => {
+export const checkout = TryCatch(async (req: any, res: any) => {
   const user = await User.findById(req.user._id);
   const course = await Courses.findById(req.params.id);
 
@@ -88,7 +91,7 @@ export const checkout = TryCatch(async (req: AuthenticatedRequest, res: Response
     return res.status(404).json({ message: "Course not found" });
   }
 
-  if (user.subscription.includes(course._id.toString())) {
+  if (user.subscription.includes(course._id)) {
     return res.status(400).json({
       message: "You already have this course",
     });
@@ -103,7 +106,7 @@ export const checkout = TryCatch(async (req: AuthenticatedRequest, res: Response
   res.status(201).json({ order, course });
 });
 
-export const paymentVerification = TryCatch(async (req: AuthenticatedRequest, res: Response) => {
+export const paymentVerification = TryCatch(async (req: any, res: any) => {
   const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
   const body = razorpay_order_id + "|" + razorpay_payment_id;
 
@@ -143,7 +146,7 @@ export const paymentVerification = TryCatch(async (req: AuthenticatedRequest, re
   res.status(200).json({ message: "Course Purchased Successfully" });
 });
 
-export const addProgress = TryCatch(async (req: AuthenticatedRequest, res: Response) => {
+export const addProgress = TryCatch(async (req: any, res: any) => {
   const progress = await Progress.findOne({
     user: req.user._id,
     course: req.query.course,
@@ -159,17 +162,24 @@ export const addProgress = TryCatch(async (req: AuthenticatedRequest, res: Respo
     return res.status(400).json({ message: "Invalid lecture ID" });
   }
 
-  if (progress.completedLectures.includes(lectureId)) {
+  // Convert the string to ObjectId before checking and pushing
+  const lectureObjectId = new mongoose.Types.ObjectId(lectureId);
+
+  if (progress.completedLectures.map(id => id.toString()).includes(lectureObjectId.toString())) {
     return res.json({ message: "Progress already recorded" });
   }
 
-  progress.completedLectures.push(lectureId);
+  // Add the lectureId as an ObjectId
+  progress.completedLectures.push(lectureObjectId);
+  
+  // Save the progress object after modification
   await progress.save();
 
   res.status(201).json({ message: "New progress added" });
 });
 
-export const getYourProgress = TryCatch(async (req: AuthenticatedRequest, res: Response) => {
+
+export const getYourProgress = TryCatch(async (req: any, res: any) => {
   const progress = await Progress.find({
     user: req.user._id,
     course: req.query.course,

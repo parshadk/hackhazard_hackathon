@@ -10,6 +10,9 @@ const db_js_1 = require("./database/db.js");
 const razorpay_1 = __importDefault(require("razorpay"));
 const cors_1 = __importDefault(require("cors"));
 dotenv_1.default.config();
+if (!process.env.Razorpay_Key || !process.env.Razorpay_Secret) {
+    throw new Error("Razorpay Key and Secret are required");
+}
 exports.instance = new razorpay_1.default({
     key_id: process.env.Razorpay_Key,
     key_secret: process.env.Razorpay_Secret,

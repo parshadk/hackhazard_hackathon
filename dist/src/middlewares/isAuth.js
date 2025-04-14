@@ -22,7 +22,13 @@ const isAuth = (req, res, next) => __awaiter(void 0, void 0, void 0, function* (
             return res.status(403).json({
                 message: "Please Login",
             });
-        const decodedData = jsonwebtoken_1.default.verify(token, process.env.Jwt_Sec);
+        const secret = process.env.Jwt_Sec;
+        if (!secret)
+            throw new Error("JWT Secret not defined!");
+        const decodedData = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
+        if (typeof decodedData === 'string' || !('_id' in decodedData)) {
+            return res.status(401).json({ message: "Invalid token" });
+        }
         req.user = yield User_js_1.User.findById(decodedData._id);
         next();
     }
@@ -42,9 +48,9 @@ const isAdmin = (req, res, next) => {
         next();
     }
     catch (error) {
-        res.status(500).json({
-            message: error.message,
-        });
+        if (error instanceof Error) {
+            res.status(500).json({ message: error.message });
+        }
     }
 };
 exports.isAdmin = isAdmin;

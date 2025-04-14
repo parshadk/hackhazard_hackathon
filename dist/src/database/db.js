@@ -16,7 +16,10 @@ exports.connectDb = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const connectDb = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield mongoose_1.default.connect(process.env.DB);
+        const dbUri = process.env.DB;
+        if (!dbUri)
+            throw new Error("DB URI not defined!");
+        yield mongoose_1.default.connect(dbUri);
         console.log("Database Connected");
     }
     catch (error) {

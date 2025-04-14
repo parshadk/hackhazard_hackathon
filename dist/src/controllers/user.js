@@ -46,7 +46,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.resetPassword = exports.forgotPassword = exports.myProfile = exports.loginUser = exports.verifyUser = exports.register = void 0;
-const User_js_1 = require("../models/User.js");
+const User_1 = __importDefault(require("../models/User"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const sendMail_js_1 = __importStar(require("../middlewares/sendMail.js"));
@@ -59,7 +59,7 @@ const getEnvVar = (key) => {
 };
 exports.register = (0, TryCatch_js_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, name, password } = req.body;
-    const existingUser = yield User_js_1.User.findOne({ email });
+    const existingUser = yield User_1.default.findOne({ email });
     if (existingUser) {
         return res.status(400).json({ message: "User already exists" });
     }
@@ -81,12 +81,12 @@ exports.verifyUser = (0, TryCatch_js_1.default)((req, res) => __awaiter(void 0, 
     if (!verify.user) {
         return res.status(400).json({ message: "Invalid token payload" });
     }
-    yield User_js_1.User.create(verify.user);
+    yield User_1.default.create(verify.user);
     res.json({ message: "User registered successfully" });
 }));
 exports.loginUser = (0, TryCatch_js_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
-    const user = yield User_js_1.User.findOne({ email });
+    const user = yield User_1.default.findOne({ email });
     if (!user) {
         return res.status(400).json({ message: "Invalid email or password" });
     }
@@ -104,28 +104,28 @@ exports.loginUser = (0, TryCatch_js_1.default)((req, res) => __awaiter(void 0, v
     });
 }));
 exports.myProfile = (0, TryCatch_js_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield User_js_1.User.findById(req.user._id);
+    const user = yield User_1.default.findById(req.user._id);
     res.json({ user });
 }));
 exports.forgotPassword = (0, TryCatch_js_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email } = req.body;
-    const user = yield User_js_1.User.findOne({ email });
+    const user = yield User_1.default.findOne({ email });
     if (!user) {
         return res.status(404).json({ message: "No user with this email" });
     }
     const token = jsonwebtoken_1.default.sign({ email }, getEnvVar("Forgot_Secret"), { expiresIn: "5m" });
     yield (0, sendMail_js_1.sendForgotMail)("E learning", { email, token });
-    user.resetPasswordExpire = Date.now() + 5 * 60 * 1000;
+    user.resetPasswordExpire = new Date(Date.now() + 5 * 60 * 1000);
     yield user.save();
     res.json({ message: "Reset password link sent to your email" });
 }));
 exports.resetPassword = (0, TryCatch_js_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const decoded = jsonwebtoken_1.default.verify(req.query.token, getEnvVar("Forgot_Secret"));
-    const user = yield User_js_1.User.findOne({ email: decoded.email });
+    const user = yield User_1.default.findOne({ email: decoded.email });
     if (!user) {
         return res.status(404).json({ message: "User not found" });
     }
-    if (!user.resetPasswordExpire || user.resetPasswordExpire < Date.now()) {
+    if (!user.resetPasswordExpire || user.resetPasswordExpire.getTime() < Date.now()) {
         return res.status(400).json({ message: "Token expired" });
     }
     user.password = yield bcrypt_1.default.hash(req.body.password, 10);

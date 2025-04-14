@@ -9,11 +9,15 @@ export const isAuth = async (req, res, next) => {
       return res.status(403).json({
         message: "Please Login",
       });
+      const secret = process.env.Jwt_Sec;
+      if (!secret) throw new Error("JWT Secret not defined!");
+      const decodedData = jwt.verify(token, process.env.JWT_SECRET!);
 
-    const decodedData = jwt.verify(token, process.env.Jwt_Sec);
-
-    req.user = await User.findById(decodedData._id);
-
+      if (typeof decodedData === 'string' || !('_id' in decodedData)) {
+        return res.status(401).json({ message: "Invalid token" });
+      }
+      
+      req.user = await User.findById(decodedData._id);
     next();
   } catch (error) {
     res.status(500).json({
@@ -30,9 +34,10 @@ export const isAdmin = (req, res, next) => {
       });
 
     next();
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      res.status(500).json({ message: error.message });
+    
+  
   }
-};
+}};

@@ -21,6 +21,7 @@ const User_js_1 = require("../models/User.js");
 const crypto_1 = __importDefault(require("crypto"));
 const Payment_js_1 = require("../models/Payment.js");
 const Progress_js_1 = require("../models/Progress.js");
+const mongoose_1 = __importDefault(require("mongoose")); // Import mongoose
 // Helper function to ensure env vars exist
 const getEnvVar = (key) => {
     const value = process.env[key];
@@ -79,7 +80,7 @@ exports.checkout = (0, TryCatch_js_1.default)((req, res) => __awaiter(void 0, vo
     if (!course) {
         return res.status(404).json({ message: "Course not found" });
     }
-    if (user.subscription.includes(course._id.toString())) {
+    if (user.subscription.includes(course._id)) {
         return res.status(400).json({
             message: "You already have this course",
         });
@@ -133,10 +134,14 @@ exports.addProgress = (0, TryCatch_js_1.default)((req, res) => __awaiter(void 0,
     if (!lectureId || typeof lectureId !== "string") {
         return res.status(400).json({ message: "Invalid lecture ID" });
     }
-    if (progress.completedLectures.includes(lectureId)) {
+    // Convert the string to ObjectId before checking and pushing
+    const lectureObjectId = new mongoose_1.default.Types.ObjectId(lectureId);
+    if (progress.completedLectures.map(id => id.toString()).includes(lectureObjectId.toString())) {
         return res.json({ message: "Progress already recorded" });
     }
-    progress.completedLectures.push(lectureId);
+    // Add the lectureId as an ObjectId
+    progress.completedLectures.push(lectureObjectId);
+    // Save the progress object after modification
     yield progress.save();
     res.status(201).json({ message: "New progress added" });
 }));

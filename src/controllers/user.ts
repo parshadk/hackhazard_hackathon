@@ -1,4 +1,4 @@
-import { User } from "../models/User.js";
+import User from "../models/User" ;
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import sendMail, { sendForgotMail } from "../middlewares/sendMail.js";
@@ -29,7 +29,7 @@ const getEnvVar = (key: string): string => {
   return value;
 };
 
-export const register = TryCatch(async (req: Request, res: Response) => {
+export const register = TryCatch(async (req:any, res:any) => {
   const { email, name, password } = req.body;
 
   const existingUser = await User.findOne({ email });
@@ -54,7 +54,7 @@ export const register = TryCatch(async (req: Request, res: Response) => {
   });
 });
 
-export const verifyUser = TryCatch(async (req: Request, res: Response) => {
+export const verifyUser = TryCatch(async (req:any, res:any) => {
   const { otp, activationToken } = req.body;
 
   const verify = jwt.verify(activationToken, getEnvVar("Activation_Secret")) as JwtPayload;
@@ -71,7 +71,7 @@ export const verifyUser = TryCatch(async (req: Request, res: Response) => {
   res.json({ message: "User registered successfully" });
 });
 
-export const loginUser = TryCatch(async (req: Request, res: Response) => {
+export const loginUser = TryCatch(async (req:any, res:any) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({ email });
@@ -95,12 +95,12 @@ export const loginUser = TryCatch(async (req: Request, res: Response) => {
   });
 });
 
-export const myProfile = TryCatch(async (req: AuthenticatedRequest, res: Response) => {
+export const myProfile = TryCatch(async (req:any, res:any) => {
   const user = await User.findById(req.user._id);
   res.json({ user });
 });
 
-export const forgotPassword = TryCatch(async (req: Request, res: Response) => {
+export const forgotPassword = TryCatch(async (req:any, res:any) => {
   const { email } = req.body;
 
   const user = await User.findOne({ email });
@@ -111,13 +111,14 @@ export const forgotPassword = TryCatch(async (req: Request, res: Response) => {
   const token = jwt.sign({ email }, getEnvVar("Forgot_Secret"), { expiresIn: "5m" });
   await sendForgotMail("E learning", { email, token });
 
-  user.resetPasswordExpire = Date.now() + 5 * 60 * 1000;
+  user.resetPasswordExpire = new Date(Date.now() + 5 * 60 * 1000);
   await user.save();
+  
 
   res.json({ message: "Reset password link sent to your email" });
 });
 
-export const resetPassword = TryCatch(async (req: Request, res: Response) => {
+export const resetPassword = TryCatch(async (req:any, res:any) => {
   const decoded = jwt.verify(req.query.token as string, getEnvVar("Forgot_Secret")) as JwtPayload;
   const user = await User.findOne({ email: decoded.email });
 
@@ -125,10 +126,10 @@ export const resetPassword = TryCatch(async (req: Request, res: Response) => {
     return res.status(404).json({ message: "User not found" });
   }
 
-  if (!user.resetPasswordExpire || user.resetPasswordExpire < Date.now()) {
+  if (!user.resetPasswordExpire || user.resetPasswordExpire.getTime() < Date.now()) {
     return res.status(400).json({ message: "Token expired" });
   }
-
+  
   user.password = await bcrypt.hash(req.body.password, 10);
   user.resetPasswordExpire = null;
   await user.save();

@@ -15,9 +15,12 @@ const TryCatch = (handler) => {
             yield handler(req, res, next);
         }
         catch (error) {
-            res.status(500).json({
-                message: error.message,
-            });
+            if (error instanceof Error) {
+                res.status(500).json({ message: error.message });
+            }
+            else {
+                res.status(500).json({ message: "An unexpected error occurred." });
+            }
         }
     });
 };
