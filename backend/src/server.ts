@@ -2,7 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import connectDB from "./config/db";
 import { LessonProgress, User, Lesson } from "./models";
-import Razorpay from "razorpay";
+import Razorpay from "razorpay-typescript";
 import cors from "cors";
 
 dotenv.config();
@@ -40,7 +40,7 @@ app.use("/api", courseRoutes);
 app.use("/api", adminRoutes);
 
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
   connectDB();
 });
 
