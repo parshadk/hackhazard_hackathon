@@ -1,5 +1,6 @@
 import { createTransport } from "nodemailer";
 
+// @ts-ignore
 const sendMail = async (email, subject, data) => {
   const transport = createTransport({
     host: "smtp.gmail.com",
@@ -66,7 +67,7 @@ const sendMail = async (email, subject, data) => {
 };
 
 export default sendMail;
-
+// @ts-ignore
 export const sendForgotMail = async (subject, data) => {
   const transport = createTransport({
     host: "smtp.gmail.com",
