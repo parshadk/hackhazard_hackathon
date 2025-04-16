@@ -7,7 +7,7 @@ import {
   resetPassword,
   verifyUser,
 } from "../controllers/user.js";
-import { isAuth } from "../middlewares/isAuth.js";
+import { isAuth } from "../middleware/isAuth.js";
 import { addProgress, getYourProgress } from "../controllers/course.js";
 
 const router = express.Router();

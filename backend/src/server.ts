@@ -39,9 +39,9 @@ app.use("/api", userRoutes);
 app.use("/api", courseRoutes);
 app.use("/api", adminRoutes);
 
-app.listen(port, () => {
+app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${port}`);
-  connectDb();
+  connectDB();
 });
 
 app.post("/api/test/progress", async (req:any, res:any) => {

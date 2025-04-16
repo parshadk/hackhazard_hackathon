@@ -1,8 +1,8 @@
 import User from "../models/User" ;
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import sendMail, { sendForgotMail } from "../middlewares/sendMail.js";
-import TryCatch from "../middlewares/TryCatch.js";
+import sendMail, { sendForgotMail } from "../middleware/sendMail.js";
+import TryCatch from "../middleware/TryCatch.js";
 import { Request, Response } from "express";
 
 interface AuthenticatedRequest extends Request {

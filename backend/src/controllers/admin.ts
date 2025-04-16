@@ -1,4 +1,4 @@
-import TryCatch from "../middlewares/TryCatch.js";
+import TryCatch from "../middleware/TryCatch.js";
 import { Courses } from "../models/Courses.js";
 import { Lecture } from "../models/Lecture.js";
 import { rm } from "fs";
@@ -78,7 +78,7 @@ export const deleteCourse = TryCatch(async (req: any, res: any) => {
   
 
   await Promise.all(
-    lectures.map(async (lecture) => {
+    lectures.map(async (lecture:any) => {
       await unlinkAsync(lecture.video);
       console.log("video deleted");
     })

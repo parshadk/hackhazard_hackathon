@@ -1,5 +1,5 @@
 import express from "express";
-import { isAdmin, isAuth } from "../middlewares/isAuth.js";
+import { isAdmin, isAuth } from "../middleware/isAuth.js";
 import {
   addLectures,
   createCourse,
@@ -9,7 +9,7 @@ import {
   getAllUser,
   updateRole,
 } from "../controllers/admin.js";
-import { uploadFiles } from "../middlewares/multer.js";
+import { uploadFiles } from "../middleware/multer.js";
 
 const router = express.Router();
 

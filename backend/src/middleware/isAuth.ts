@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { User } from "../models/User.js";
 
-export const isAuth = async (req, res, next) => {
+export const isAuth = async (req:any, res:any, next:any) => {
   try {
     const token = req.headers.token;
 
@@ -26,7 +26,7 @@ export const isAuth = async (req, res, next) => {
   }
 };
 
-export const isAdmin = (req, res, next) => {
+export const isAdmin = (req:any, res:any, next:any) => {
   try {
     if (req.user.role !== "admin")
       return res.status(403).json({

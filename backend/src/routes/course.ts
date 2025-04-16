@@ -8,7 +8,7 @@ import {
   checkout,
   paymentVerification,
 } from "../controllers/course.js";
-import { isAuth } from "../middlewares/isAuth.js";
+import { isAuth } from "../middleware/isAuth.js";
 
 const router = express.Router();
 
