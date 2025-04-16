@@ -29,7 +29,28 @@ const getEnvVar = (key: string): string => {
   return value;
 };
 
-export const register = TryCatch(async (req:any, res:any) => {
+    // Function ubdate => level and xp
+const updateXPAndLevel = async (userId: string) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+       // Update XP => exm: 25 XP for completing a video
+  user.xp += 25;
+
+
+  if (user.xp >= 100 && user.level === "Beginner") {
+    user.level = "Intermediate";
+  } else if (user.xp >= 200 && user.level === "Intermediate") {
+    user.level = "Advanced";
+  }
+
+
+  await user.save();
+};
+
+export const register = TryCatch(async (req: any, res: any) => {
   const { email, name, password } = req.body;
 
   const existingUser = await User.findOne({ email });
@@ -54,11 +75,11 @@ export const register = TryCatch(async (req:any, res:any) => {
   });
 });
 
-export const verifyUser = TryCatch(async (req:any, res:any) => {
+export const verifyUser = TryCatch(async (req: any, res: any) => {
   const { otp, activationToken } = req.body;
 
   const verify = jwt.verify(activationToken, getEnvVar("Activation_Secret")) as JwtPayload;
-  
+
   if (!verify || verify.otp !== otp) {
     return res.status(400).json({ message: "Invalid or expired OTP" });
   }
@@ -71,7 +92,7 @@ export const verifyUser = TryCatch(async (req:any, res:any) => {
   res.json({ message: "User registered successfully" });
 });
 
-export const loginUser = TryCatch(async (req:any, res:any) => {
+export const loginUser = TryCatch(async (req: any, res: any) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({ email });
@@ -91,16 +112,19 @@ export const loginUser = TryCatch(async (req:any, res:any) => {
   res.json({
     message: `Welcome back ${user.name}`,
     token,
-    user: { name: user.name, email: user.email },
+    user: { name: user.name, email: user.email, xp: user.xp, level: user.level },
   });
 });
 
-export const myProfile = TryCatch(async (req:any, res:any) => {
+export const myProfile = TryCatch(async (req: any, res: any) => {
   const user = await User.findById(req.user._id);
-  res.json({ user });
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+  res.json({ user: { name: user.name, email: user.email, xp: user.xp, level: user.level } });
 });
 
-export const forgotPassword = TryCatch(async (req:any, res:any) => {
+export const forgotPassword = TryCatch(async (req: any, res: any) => {
   const { email } = req.body;
 
   const user = await User.findOne({ email });
@@ -113,12 +137,11 @@ export const forgotPassword = TryCatch(async (req:any, res:any) => {
 
   user.resetPasswordExpire = new Date(Date.now() + 5 * 60 * 1000);
   await user.save();
-  
 
   res.json({ message: "Reset password link sent to your email" });
 });
 
-export const resetPassword = TryCatch(async (req:any, res:any) => {
+export const resetPassword = TryCatch(async (req: any, res: any) => {
   const decoded = jwt.verify(req.query.token as string, getEnvVar("Forgot_Secret")) as JwtPayload;
   const user = await User.findOne({ email: decoded.email });
 
@@ -129,7 +152,7 @@ export const resetPassword = TryCatch(async (req:any, res:any) => {
   if (!user.resetPasswordExpire || user.resetPasswordExpire.getTime() < Date.now()) {
     return res.status(400).json({ message: "Token expired" });
   }
-  
+
   user.password = await bcrypt.hash(req.body.password, 10);
   user.resetPasswordExpire = null;
   await user.save();
