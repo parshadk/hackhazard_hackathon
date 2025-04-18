@@ -1,10 +1,10 @@
-import TryCatch from "../middleware/TryCatch.js";
-import { Courses } from "../models/Courses.js";
-import { Lecture } from "../models/Lecture.js";
+import TryCatch from "../middleware/TryCatch";
+import { Courses } from "../models/Courses";
+import { Lecture } from "../models/Lecture";
 import { rm } from "fs";
 import { promisify } from "util";
 import fs from "fs";
-import { User } from "../models/User.js";
+import { User } from "../models/User";
 export const createCourse = TryCatch(async (req: any, res: any) => {
   const { title, description, category, createdBy, duration, price } = req.body;
 

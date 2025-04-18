@@ -9,6 +9,8 @@ const storage = multer.diskStorage({
     const id = uuid();
     const extName = file.originalname.split('.').pop();
     const fileName = `${id}.${extName}`;
+    console.log(fileName);
+    
     cb(null, fileName);
   },
 });

@@ -1,8 +1,8 @@
 import {User} from "../models/User" ;
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import sendMail, { sendForgotMail } from "../middleware/sendMail.js";
-import TryCatch from "../middleware/TryCatch.js";
+import sendMail, { sendForgotMail } from "../middleware/sendMail";
+import TryCatch from "../middleware/TryCatch";
 import { Request, Response } from "express";
 
 interface AuthenticatedRequest extends Request {
@@ -60,7 +60,7 @@ export const register = TryCatch(async (req: any, res: any) => {
 
   const hashPassword = await bcrypt.hash(password, 10);
   const otp = Math.floor(Math.random() * 1000000);
-
+  
   const activationToken = jwt.sign(
     { user: { name, email, password: hashPassword }, otp },
     getEnvVar("Activation_Secret"),
@@ -79,8 +79,9 @@ export const verifyUser = TryCatch(async (req: any, res: any) => {
   const { otp, activationToken } = req.body;
 
   const verify = jwt.verify(activationToken, getEnvVar("Activation_Secret")) as JwtPayload;
-
-  if (!verify || verify.otp !== otp) {
+  console.log(verify);
+  
+  if (!verify || verify.otp !== Number(otp)) {
     return res.status(400).json({ message: "Invalid or expired OTP" });
   }
 

@@ -1,11 +1,11 @@
 import { instance } from "../server";
-import TryCatch from "../middleware/TryCatch.js";
-import { Courses } from "../models/Courses.js";
-import { Lecture } from "../models/Lecture.js";
-import { User } from "../models/User.js";
+import TryCatch from "../middleware/TryCatch";
+import { Courses } from "../models/Courses";
+import { Lecture } from "../models/Lecture";
+import { User } from "../models/User";
 import crypto from "crypto";
-import { Payment } from "../models/Payment.js";
-import { Progress } from "../models/Progress.js";
+import { Payment } from "../models/Payment";
+import { Progress } from "../models/Progress";
 import { ObjectId } from 'mongoose';
 import mongoose from 'mongoose'; // Import mongoose
 
@@ -81,6 +81,8 @@ export const getMyCourses = TryCatch(async (req: any, res: any) => {
 
 export const checkout = TryCatch(async (req: any, res: any) => {
   const user = await User.findById(req.user._id);
+  console.log(user);
+  
   const course = await Courses.findById(req.params.id);
 
   if (!user) {
@@ -101,9 +103,17 @@ export const checkout = TryCatch(async (req: any, res: any) => {
     amount: Number(course.price * 100),
     currency: "INR",
   };
-
-  const order = await instance.orders.create(options);
-  res.status(201).json({ order, course });
+  console.log(options);
+  try {
+    
+    const order = await instance.orders.create(options);
+    console.log(order);
+    
+    res.status(201).json({ order, course });
+  } catch (error) {
+    console.log(error);
+      
+  }
 });
 
 export const paymentVerification = TryCatch(async (req: any, res: any) => {
@@ -111,7 +121,7 @@ export const paymentVerification = TryCatch(async (req: any, res: any) => {
   const body = razorpay_order_id + "|" + razorpay_payment_id;
 
   const expectedSignature = crypto
-    .createHmac("sha256", getEnvVar("Razorpay_Secret"))
+    .createHmac("sha256", getEnvVar("ErJwXn4IGZRtv6T6E1cmgs4V"))
     .update(body)
     .digest("hex");
 
