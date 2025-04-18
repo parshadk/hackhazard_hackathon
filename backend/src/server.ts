@@ -2,7 +2,8 @@ import express from "express";
 import dotenv from "dotenv";
 import connectDB from "./config/db";
 import { LessonProgress, User, Lesson } from "./models";
-import Razorpay from "razorpay-typescript";
+
+import Razorpay from "razorpay";
 import cors from "cors";
 
 dotenv.config();
@@ -86,6 +87,3 @@ app.get("/", (req:any, res:any) => {
   res.send("EduFinance API up & running 🪙");
 });
 
-app.listen(PORT, () => {
-  console.log(` Server running at http://localhost:${PORT}`);
-});

@@ -58,3 +58,6 @@ ehthumbs.db
 # Temporary files
 /tmp/
 /**/tmp/
+
+
+*.zip
