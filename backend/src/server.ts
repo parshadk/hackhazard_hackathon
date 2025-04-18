@@ -17,7 +17,6 @@ if (!process.env.Razorpay_Key || !process.env.Razorpay_Secret) {
 }
 
 export const instance = new Razorpay({
-
   key_id: process.env.Razorpay_Key!,
   key_secret: process.env.Razorpay_Secret!
 });
