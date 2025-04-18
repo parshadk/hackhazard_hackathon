@@ -8,7 +8,7 @@ import { Payment } from "../models/Payment";
 import { Progress } from "../models/Progress";
 import { ObjectId } from 'mongoose';
 import mongoose from 'mongoose'; // Import mongoose
-
+import Razorpay from "razorpay";
 import { Request, Response } from "express";
 
 // Helper function to ensure env vars exist
@@ -121,7 +121,7 @@ export const paymentVerification = TryCatch(async (req: any, res: any) => {
   const body = razorpay_order_id + "|" + razorpay_payment_id;
 
   const expectedSignature = crypto
-    .createHmac("sha256", getEnvVar("ErJwXn4IGZRtv6T6E1cmgs4V"))
+    .createHmac("sha256", getEnvVar("RAZORPAY_KEY_SECRET"))
     .update(body)
     .digest("hex");
 
