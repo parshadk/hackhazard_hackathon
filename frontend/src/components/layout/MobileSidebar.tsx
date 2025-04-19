@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, BookOpen, HelpCircle, Wallet, User, X } from 'lucide-react';
+import { Home, BookOpen, HelpCircle, Wallet, User, X, Radio } from 'lucide-react';
 
 interface MobileSidebarProps {
   isOpen: boolean;
@@ -20,6 +20,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
     { name: 'Quizzes', icon: <HelpCircle size={20} />, id: 'quizzes' },
     { name: 'Wallet', icon: <Wallet size={20} />, id: 'wallet' },
     { name: 'Profile', icon: <User size={20} />, id: 'profile' },
+    { name: 'Live', icon: <Radio size={20} />, id: 'live' },
   ];
 
   if (!isOpen) return null;

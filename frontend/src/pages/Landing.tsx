@@ -68,8 +68,9 @@ const Landing: React.FC<LandingProps> = ({ onGetStarted, onLogin }) => {
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Button
+                variant="outline"
                 size="lg"
-                className="bg-white text-blue-600 hover:bg-blue-50"
+                className="border-white text-white hover:bg-blue-700"
                 onClick={onGetStarted}
               >
                 Get Started

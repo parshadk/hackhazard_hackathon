@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, BookOpen, HelpCircle, Wallet, User } from 'lucide-react';
+import { Home, BookOpen, HelpCircle, Wallet, User, Radio } from 'lucide-react';
 
 interface SidebarProps {
   activePage: string;
@@ -13,6 +13,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activePage, onNavigate }) => {
     { name: 'Quizzes', icon: <HelpCircle size={20} />, id: 'quizzes' },
     { name: 'Wallet', icon: <Wallet size={20} />, id: 'wallet' },
     { name: 'Profile', icon: <User size={20} />, id: 'profile' },
+    { name: 'Live', icon: <Radio size={20} />, id: 'live' },
   ];
 
   return (
