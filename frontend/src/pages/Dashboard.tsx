@@ -4,9 +4,10 @@ import RecentLessons from '../components/dashboard/RecentLessons';
 import DailyTip from '../components/dashboard/DailyTip';
 import RecommendedQuiz from '../components/dashboard/RecommendedQuiz';
 import LevelIndicator from '../components/dashboard/LevelIndicator';
+import API from "./../utils/api";
 
 interface DashboardProps {
-  onViewLesson: (id: string) => void;
+  onViewLesson: (id: string) => void; 
   onStartQuiz: (id: string) => void;
 }
 

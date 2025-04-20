@@ -9,10 +9,6 @@ import Profile from './pages/Profile';
 import Sidebar from './components/layout/Sidebar';
 import Topbar from './components/layout/Topbar';
 import MobileSidebar from './components/layout/MobileSidebar';
-import StockHistory from './pages/StockHistory';
-import LiveUpdates from './pages/LiveUpdates';
-
-
 
 function App() {
   const [currentPage, setCurrentPage] = useState<string>('landing');
@@ -30,7 +26,7 @@ function App() {
   const handleNavigate = (page: string) => {
     setCurrentPage(page);
     // Reset selected items when navigating to main pages
-    if (['dashboard', 'lessons', 'quizzes', 'wallet', 'profile','live'].includes(page)) {
+    if (['dashboard', 'lessons', 'quizzes', 'wallet', 'profile'].includes(page)) {
       setSelectedLessonId(null);
       setSelectedQuizId(null);
     }
@@ -60,11 +56,6 @@ function App() {
     console.log(`Quiz completed: ${score}/${totalQuestions}`);
     // save the quiz results and update user XP/coins
   };
-
-  const handleShowHistory = () => {
-    setCurrentPage('stockHistory');  // Navigate to StockHistory page
-  };
-  
 
   // Render page content based on current page
   const renderPageContent = () => {
@@ -109,15 +100,6 @@ function App() {
         return <Wallet />;
       case 'profile':
         return <Profile />;
-      case 'live':
-        return (
-          <LiveUpdates onShowHistory={handleShowHistory} />
-        );
-      case 'stockHistory':
-        return (
-          <StockHistory onBack={() => handleNavigate('live')} />
-        );
-        
       default:
         return <Dashboard onViewLesson={handleViewLesson} onStartQuiz={handleStartQuiz} />;
     }
