@@ -1,74 +1,98 @@
-import React from 'react';
-import { Home, BookOpen, HelpCircle, Wallet, User, X, Radio } from 'lucide-react';
+
+import { X } from "lucide-react"
+import { NavLink } from "react-router-dom"
+import { useAuth } from "../../context/AuthContext"
+import { Home, BookOpen, Wallet, User, LineChart, LogOut, Award } from "lucide-react"
 
 interface MobileSidebarProps {
-  isOpen: boolean;
-  onClose: () => void;
-  activePage: string;
-  onNavigate: (page: string) => void;
+  isOpen: boolean
+  onClose: () => void
 }
 
-const MobileSidebar: React.FC<MobileSidebarProps> = ({ 
-  isOpen, 
-  onClose, 
-  activePage, 
-  onNavigate 
-}) => {
-  const menuItems = [
-    { name: 'Dashboard', icon: <Home size={20} />, id: 'dashboard' },
-    { name: 'Lessons', icon: <BookOpen size={20} />, id: 'lessons' },
-    { name: 'Quizzes', icon: <HelpCircle size={20} />, id: 'quizzes' },
-    { name: 'Wallet', icon: <Wallet size={20} />, id: 'wallet' },
-    { name: 'Profile', icon: <User size={20} />, id: 'profile' },
-    { name: 'Live', icon: <Radio size={20} />, id: 'live' },
-  ];
+export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
+  const { user, logout } = useAuth()
 
-  if (!isOpen) return null;
+  const navItems = [
+    { name: "Dashboard", path: "/dashboard", icon: Home },
+    { name: "Lessons", path: "/lessons", icon: BookOpen },
+    { name: "Wallet", path: "/wallet", icon: Wallet },
+    { name: "Profile", path: "/profile", icon: User },
+    { name: "Live Updates", path: "/live-updates", icon: LineChart },
+  ]
 
-  const handleNavigate = (page: string) => {
-    onNavigate(page);
-    onClose();
-  };
+  const handleLogout = () => {
+    logout()
+    onClose()
+  }
 
   return (
-    <div className="fixed inset-0 z-50 md:hidden">
-      <div className="fixed inset-0 bg-black/50" onClick={onClose}></div>
-      
-      <div className="fixed inset-y-0 left-0 w-64 bg-white shadow-lg transform transition-transform duration-300 z-10">
-        <div className="p-6 flex justify-between items-center border-b border-gray-200">
-          <h1 className="text-xl font-bold text-blue-600 flex items-center">
-            EduFinance <span className="ml-2">🪙</span>
-          </h1>
-          <button 
-            onClick={onClose}
-            className="p-2 rounded-md text-gray-600 hover:bg-gray-100"
-          >
-            <X size={20} />
+    <>
+      {/* Backdrop */}
+      {isOpen && <div className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden" onClick={onClose} />}
+
+      {/* Sidebar */}
+      <div
+        className={`
+        fixed inset-y-0 left-0 w-64 bg-white z-50 transform transition-transform duration-300 ease-in-out md:hidden
+        ${isOpen ? "translate-x-0" : "-translate-x-full"}
+      `}
+      >
+        <div className="flex justify-between items-center p-4 border-b border-gray-200">
+          <div className="flex items-center space-x-2">
+            <Award className="h-6 w-6 text-primary" />
+            <h1 className="text-lg font-bold">EduFinance</h1>
+          </div>
+          <button onClick={onClose} className="p-2 rounded-md text-gray-500 hover:bg-gray-100">
+            <X className="h-5 w-5" />
           </button>
         </div>
-        
-        <nav className="px-4 mt-6">
-          <ul className="space-y-2">
-            {menuItems.map((item) => (
-              <li key={item.id}>
-                <button
-                  onClick={() => handleNavigate(item.id)}
-                  className={`flex items-center w-full px-4 py-3 rounded-lg transition-colors ${
-                    activePage === item.id
-                      ? 'bg-blue-50 text-blue-600'
-                      : 'text-gray-600 hover:bg-gray-50'
-                  }`}
-                >
-                  <span className="mr-3">{item.icon}</span>
-                  <span className="font-medium">{item.name}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      </div>
-    </div>
-  );
-};
 
-export default MobileSidebar;
+        {/* User info */}
+        {user && (
+          <div className="p-4 border-b border-gray-200">
+            <div className="flex flex-col">
+              <span className="font-medium">{user.name}</span>
+              <span className="text-sm text-gray-500">{user.level}</span>
+              <div className="mt-2">
+                <div className="text-xs text-gray-500 mb-1">XP: {user.xp}</div>
+                <div className="progress-bar">
+                  <div className="progress-bar-fill" style={{ width: `${Math.min(100, user.xp % 100)}%` }} />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Navigation */}
+        <nav className="flex-1 p-4 space-y-1">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              onClick={onClose}
+              className={({ isActive }) =>
+                `flex items-center px-4 py-2 text-sm rounded-md transition-colors ${
+                  isActive ? "bg-primary text-white" : "text-gray-700 hover:bg-gray-100"
+                }`
+              }
+            >
+              <item.icon className="h-5 w-5 mr-3" />
+              {item.name}
+            </NavLink>
+          ))}
+        </nav>
+
+        {/* Logout button */}
+        <div className="p-4 border-t border-gray-200">
+          <button
+            onClick={handleLogout}
+            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 rounded-md hover:bg-gray-100 transition-colors"
+          >
+            <LogOut className="h-5 w-5 mr-3" />
+            Logout
+          </button>
+        </div>
+      </div>
+    </>
+  )
+}

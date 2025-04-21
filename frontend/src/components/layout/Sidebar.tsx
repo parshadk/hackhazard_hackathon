@@ -1,55 +1,77 @@
-import React from 'react';
-import { Home, BookOpen, HelpCircle, Wallet, User, Radio } from 'lucide-react';
+
+import { NavLink } from "react-router-dom"
+import { useAuth } from "../../context/AuthContext"
+import { Home, BookOpen, Wallet, User, LineChart, LogOut, Award } from "lucide-react"
 
 interface SidebarProps {
-  activePage: string;
-  onNavigate: (page: string) => void;
+  className?: string
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ activePage, onNavigate }) => {
-  const menuItems = [
-    { name: 'Dashboard', icon: <Home size={20} />, id: 'dashboard' },
-    { name: 'Lessons', icon: <BookOpen size={20} />, id: 'lessons' },
-    { name: 'Quizzes', icon: <HelpCircle size={20} />, id: 'quizzes' },
-    { name: 'Wallet', icon: <Wallet size={20} />, id: 'wallet' },
-    { name: 'Profile', icon: <User size={20} />, id: 'profile' },
-    { name: 'Live', icon: <Radio size={20} />, id: 'live' },
-  ];
+export default function Sidebar({ className = "" }: SidebarProps) {
+  const { user, logout } = useAuth()
+
+  const navItems = [
+    { name: "Dashboard", path: "/dashboard", icon: Home },
+    { name: "Lessons", path: "/lessons", icon: BookOpen },
+    { name: "Wallet", path: "/wallet", icon: Wallet },
+    { name: "Profile", path: "/profile", icon: User },
+    { name: "Live Updates", path: "/live-updates", icon: LineChart },
+  ]
 
   return (
-    <aside className="hidden md:flex flex-col w-64 h-screen bg-white border-r border-gray-200 fixed top-0 left-0 z-10">
-      <div className="p-6">
-        <h1 className="text-2xl font-bold text-blue-600 flex items-center">
-          EduFinance <span className="ml-2">🪙</span>
-        </h1>
-      </div>
-      <nav className="flex-1 px-4 mt-6">
-        <ul className="space-y-2">
-          {menuItems.map((item) => (
-            <li key={item.id}>
-              <button
-                onClick={() => onNavigate(item.id)}
-                className={`flex items-center w-full px-4 py-3 rounded-lg transition-colors ${
-                  activePage === item.id
-                    ? 'bg-blue-50 text-blue-600'
-                    : 'text-gray-600 hover:bg-gray-50'
-                }`}
-              >
-                <span className="mr-3">{item.icon}</span>
-                <span className="font-medium">{item.name}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      </nav>
-      <div className="p-4 border-t border-gray-200">
-        <div className="p-4 bg-blue-50 rounded-lg">
-          <p className="text-sm text-blue-800 font-medium">Need help?</p>
-          <p className="text-xs text-blue-600 mt-1">Contact support</p>
+    <div className={`w-64 bg-white border-r border-gray-200 flex flex-col ${className}`}>
+      {/* Logo and app name */}
+      <div className="p-4 border-b border-gray-200">
+        <div className="flex items-center space-x-2">
+          <Award className="h-8 w-8 text-primary" />
+          <h1 className="text-xl font-bold">EduFinance</h1>
         </div>
       </div>
-    </aside>
-  );
-};
 
-export default Sidebar;
+      {/* User info */}
+      {user && (
+        <div className="p-4 border-b border-gray-200">
+          <div className="flex flex-col">
+            <span className="font-medium">{user.name}</span>
+            <span className="text-sm text-gray-500">{user.level}</span>
+            <div className="mt-2">
+              <div className="text-xs text-gray-500 mb-1">XP: {user.xp}</div>
+              <div className="progress-bar">
+                <div className="progress-bar-fill" style={{ width: `${Math.min(100, user.xp % 100)}%` }} />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Navigation */}
+      <nav className="flex-1 p-4 space-y-1">
+        {navItems.map((item) => (
+          <NavLink
+            key={item.path}
+            to={item.path}
+            className={({ isActive }) =>
+              `flex items-center px-4 py-2 text-sm rounded-md transition-colors ${
+                isActive ? "bg-primary text-white" : "text-gray-700 hover:bg-gray-100"
+              }`
+            }
+          >
+            <item.icon className="h-5 w-5 mr-3" />
+            {item.name}
+          </NavLink>
+        ))}
+      </nav>
+
+      {/* Logout button */}
+      <div className="p-4 border-t border-gray-200">
+        <button
+          onClick={logout}
+          className="flex items-center w-full px-4 py-2 text-sm text-gray-700 rounded-md hover:bg-gray-100 transition-colors"
+        >
+          <LogOut className="h-5 w-5 mr-3" />
+          Logout
+        </button>
+      </div>
+    </div>
+  )
+}

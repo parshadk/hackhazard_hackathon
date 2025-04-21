@@ -1,139 +1,124 @@
-import { useState } from 'react';
-import Landing from './pages/Landing';
-import Dashboard from './pages/Dashboard';
-import Lessons from './pages/Lessons';
-import LessonDetail from './pages/LessonDetails';
-import Quiz from './pages/Quiz';
-import Wallet from './pages/Wallet';
-import Profile from './pages/Profile';
-import Sidebar from './components/layout/Sidebar';
-import Topbar from './components/layout/Topbar';
-import MobileSidebar from './components/layout/MobileSidebar';
+import React, { Suspense, lazy } from "react"
+import { Routes, Route, Navigate } from "react-router-dom"
+import { Toaster } from "react-hot-toast"
+import { useAuth } from "./context/AuthContext"
+import Layout from "./components/layout/Layout"
+import LoadingSpinner from "./components/ui/LoadingSpinner"
 
-function App() {
-  const [currentPage, setCurrentPage] = useState<string>('landing');
-  const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null);
-  const [selectedQuizId, setSelectedQuizId] = useState<string | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  
-  // Mock user data
-  const userData = {
-    xp: 350,
-    maxXp: 500,
-    coins: 375,
-  };
+// Lazy-loaded pages
+const Landing = lazy(() => import("./pages/Landing"))
+const Login = lazy(() => import("./pages/Login"))
+const Register = lazy(() => import("./pages/Register"))
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"))
+const ResetPassword = lazy(() => import("./pages/ResetPassword"))
+const Dashboard = lazy(() => import("./pages/Dashboard"))
+const Lessons = lazy(() => import("./pages/Lessons"))
+const LessonDetail = lazy(() => import("./pages/LessonDetails"))
+const Quiz = lazy(() => import("./pages/Quiz"))
+const Wallet = lazy(() => import("./pages/Wallet"))
+const Profile = lazy(() => import("./pages/Profile"))
+const LiveUpdates = lazy(() => import("./pages/LiveUpdates"))
 
-  const handleNavigate = (page: string) => {
-    setCurrentPage(page);
-    // Reset selected items when navigating to main pages
-    if (['dashboard', 'lessons', 'quizzes', 'wallet', 'profile'].includes(page)) {
-      setSelectedLessonId(null);
-      setSelectedQuizId(null);
-    }
-  };
+// Protected route wrapper
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated, loading } = useAuth()
 
-  const handleGetStarted = () => {
-    //change to login or signup page
-    setCurrentPage('dashboard');
-  };
+  if (loading) return <LoadingSpinner />
+  if (!isAuthenticated) return <Navigate to="/login" replace />
 
-  const handleLogin = () => {
-    //change to login or signup page
-    setCurrentPage('dashboard');
-  };
-
-  const handleViewLesson = (id: string) => {
-    setSelectedLessonId(id);
-    setCurrentPage('lessonDetail');
-  };
-
-  const handleStartQuiz = (id: string) => {
-    setSelectedQuizId(id);
-    setCurrentPage('quiz');
-  };
-
-  const handleQuizComplete = (score: number, totalQuestions: number) => {
-    console.log(`Quiz completed: ${score}/${totalQuestions}`);
-    // save the quiz results and update user XP/coins
-  };
-
-  // Render page content based on current page
-  const renderPageContent = () => {
-    switch (currentPage) {
-      case 'landing':
-        return (
-          <Landing 
-            onGetStarted={handleGetStarted} 
-            onLogin={handleLogin} 
-          />
-        );
-      case 'dashboard':
-        return (
-          <Dashboard 
-            onViewLesson={handleViewLesson} 
-            onStartQuiz={handleStartQuiz} 
-          />
-        );
-      case 'lessons':
-        return (
-          <Lessons 
-            onStartLesson={handleViewLesson} 
-          />
-        );
-      case 'lessonDetail':
-        return (
-          <LessonDetail
-            lessonId={selectedLessonId || '1'}
-            onBack={() => handleNavigate('lessons')}
-            onStartQuiz={handleStartQuiz}
-          />
-        );
-      case 'quiz':
-        return (
-          <Quiz
-            quizId={selectedQuizId || '1'}
-            onBack={() => handleNavigate(selectedLessonId ? 'lessonDetail' : 'lessons')}
-            onComplete={handleQuizComplete}
-          />
-        );
-      case 'wallet':
-        return <Wallet />;
-      case 'profile':
-        return <Profile />;
-      default:
-        return <Dashboard onViewLesson={handleViewLesson} onStartQuiz={handleStartQuiz} />;
-    }
-  };
-
-  // hide sidebar/topbar on landing page
-  if (currentPage === 'landing') {
-    return renderPageContent();
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <Sidebar 
-        activePage={currentPage} 
-        onNavigate={handleNavigate} 
-      />
-      
-      <Topbar 
-        xp={userData.xp} 
-        maxXp={userData.maxXp} 
-        coins={userData.coins} 
-        toggleSidebar={() => setSidebarOpen(true)} 
-      />
-      
-      <MobileSidebar 
-        isOpen={sidebarOpen} 
-        onClose={() => setSidebarOpen(false)} 
-        activePage={currentPage}
-        onNavigate={handleNavigate}
-      />
-      
-      {renderPageContent()}
-    </div>
-  );
+  return <>{children}</>
 }
 
-export default App;
+const App: React.FC = () => {
+  return (
+    <>
+      <Suspense fallback={<LoadingSpinner />}>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<Landing />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+
+          {/* Protected Routes */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Dashboard />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/lessons"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Lessons />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/lesson/:id"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <LessonDetail />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/quiz/:id"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Quiz />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/wallet"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Wallet />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Profile />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/live-updates"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <LiveUpdates />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </Suspense>
+
+      {/* Toast Notifications */}
+      <Toaster position="top-right" />
+    </>
+  )
+}
+
+export default App
