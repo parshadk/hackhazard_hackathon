@@ -1,191 +1,317 @@
-import React, { useState } from 'react';
-import PageContainer from '../components/layout/PageContainer';
-import Card from '../components/common/Card';
-import Badge from '../components/common/Badge';
-import Button from '../components/common/Button';
-import { ArrowLeft, BookOpen, CheckCircle, Clock } from 'lucide-react';
+import { useEffect, useState } from "react"
+import { useParams, useNavigate, Link } from "react-router-dom"
+import axios from "axios"
+import { API_URL } from "../utils/api"
+import { BookOpen, ChevronLeft, ChevronRight, Play } from "lucide-react"
+import LoadingSpinner from "./../components/ui/LoadingSpinner"
+import toast from "react-hot-toast"
 
-interface LessonDetailProps {
-  lessonId: string;
-  onBack: () => void;
-  onStartQuiz: (lessonId: string) => void;
+interface Course {
+  _id: string
+  title: string
+  slug: string
+  level: string
+  topic: string
+  thumbnail?: string
+  description?: string
 }
 
-const LessonDetail: React.FC<LessonDetailProps> = ({ 
-  lessonId, 
-  onBack, 
-  onStartQuiz 
-}) => {
-  const [isCompleted, setIsCompleted] = useState(false);
-  
-  // Mock lesson data
-  const lesson = {
-    id: lessonId,
-    title: 'Understanding Credit Scores',
-    topic: 'Credit Management',
-    level: 'beginner' as const,
-    timeToComplete: '15 min',
-    xpReward: 100,
-    coinReward: 50,
-    content: `
-      <h2>What is a Credit Score?</h2>
-      <p>A credit score is a three-digit number that represents your creditworthiness. It helps lenders assess the risk of lending you money or giving you credit.</p>
-      
-      <h2>Why are Credit Scores Important?</h2>
-      <p>Credit scores affect your ability to:</p>
-      <ul>
-        <li>Get approved for loans and credit cards</li>
-        <li>Secure favorable interest rates</li>
-        <li>Rent an apartment</li>
-        <li>In some cases, get hired for certain jobs</li>
-      </ul>
-      
-      <h2>What Factors Affect Your Credit Score?</h2>
-      <p>The major factors that determine your credit score include:</p>
-      <ul>
-        <li><strong>Payment History (35%)</strong>: Whether you've paid your bills on time</li>
-        <li><strong>Credit Utilization (30%)</strong>: How much of your available credit you're using</li>
-        <li><strong>Length of Credit History (15%)</strong>: How long you've had credit accounts</li>
-        <li><strong>Credit Mix (10%)</strong>: The variety of credit accounts you have</li>
-        <li><strong>New Credit (10%)</strong>: How many new accounts you've opened recently</li>
-      </ul>
-      
-      <h2>How to Improve Your Credit Score</h2>
-      <ol>
-        <li>Pay your bills on time, every time</li>
-        <li>Keep your credit card balances low (below 30% of your limit)</li>
-        <li>Don't close old credit accounts</li>
-        <li>Be careful about opening too many new accounts at once</li>
-        <li>Regularly check your credit report for errors</li>
-      </ol>
-    `,
-  };
+interface Lecture {
+  _id: string
+  title: string
+  description?: string
+  content?: {
+    text?: string
+    video?: string
+  }
+  course: string
+}
 
-  const handleToggleCompletion = () => {
-    setIsCompleted(!isCompleted);
-  };
+interface Progress {
+  courseProgressPercentage: number
+  completedLectures: string[]
+  allLectures: number
+}
 
-  const handleQuiz = () => {
-    onStartQuiz(lessonId);
-  };
+export default function LessonDetail() {
+  const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
+  const [course, setCourse] = useState<Course | null>(null)
+  const [lectures, setLectures] = useState<Lecture[]>([])
+  const [currentLecture, setCurrentLecture] = useState<Lecture | null>(null)
+  const [progress, setProgress] = useState<Progress | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [enrolled, setEnrolled] = useState(false)
+  const [checkoutLoading, setCheckoutLoading] = useState(false)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const { data: courseData } = await axios.get(`${API_URL}/course/${id}`)
+        setCourse(courseData.course)
+
+        try {
+          const { data: lecturesData } = await axios.get(`${API_URL}/lectures/${id}`)
+          setLectures(lecturesData.lectures)
+          setEnrolled(true)
+
+          if (lecturesData.lectures.length > 0 && !currentLecture) {
+            setCurrentLecture(lecturesData.lectures[0])
+          }
+
+          try {
+            const { data: progressData } = await axios.get(`${API_URL}/user/progress?course=${id}`)
+            setProgress(progressData)
+          } catch (error) {
+            console.error("Failed to fetch progress", error)
+          }
+        } catch (error: any) {
+          if (error.response?.status === 403) {
+            setEnrolled(false)
+          } else {
+            console.error("Failed to fetch lectures", error)
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch course details", error)
+        toast.error("Failed to load course")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [id, currentLecture])
+
+  const handleLectureSelect = async (lecture: Lecture) => {
+    setCurrentLecture(lecture)
+    try {
+      if (progress && !progress.completedLectures.includes(lecture._id)) {
+        await axios.post(`${API_URL}/user/progress?course=${id}&lectureId=${lecture._id}`)
+      }
+    } catch (error) {
+      console.error("Failed to update progress", error)
+    }
+  }
+
+  const handleEnroll = async () => {
+    setCheckoutLoading(true)
+    try {
+      const { data } = await axios.post(`${API_URL}/course/checkout/${id}`)
+      await axios.post(`${API_URL}/verification/${id}`, {
+        razorpay_order_id: data.order.id,
+        razorpay_payment_id: "test_payment_id",
+        razorpay_signature: "test_signature",
+      })
+      toast.success("Successfully enrolled in course")
+      window.location.reload()
+    } catch (error) {
+      console.error("Failed to enroll in course", error)
+      toast.error("Failed to enroll in course")
+    } finally {
+      setCheckoutLoading(false)
+    }
+  }
+
+  const handleNextLecture = () => {
+    if (!currentLecture || !lectures.length) return
+    const currentIndex = lectures.findIndex((lecture) => lecture._id === currentLecture._id)
+    if (currentIndex < lectures.length - 1) {
+      handleLectureSelect(lectures[currentIndex + 1])
+    }
+  }
+
+  const handlePrevLecture = () => {
+    if (!currentLecture || !lectures.length) return
+    const currentIndex = lectures.findIndex((lecture) => lecture._id === currentLecture._id)
+    if (currentIndex > 0) {
+      handleLectureSelect(lectures[currentIndex - 1])
+    }
+  }
+
+  const startQuiz = () => {
+    if (course) {
+      navigate(`/quiz/${course._id}`)
+    }
+  }
+
+  if (loading) return <LoadingSpinner />
+
+  if (!course) {
+    return (
+      <div className="text-center py-12">
+        <h2 className="text-2xl font-bold mb-4">Course not found</h2>
+        <Link to="/lessons" className="text-indigo-600 hover:underline">
+          Back to courses
+        </Link>
+      </div>
+    )
+  }
 
   return (
-    <PageContainer>
-      <button 
-        onClick={onBack}
-        className="flex items-center text-blue-600 font-medium mb-6"
-      >
-        <ArrowLeft size={18} className="mr-1" />
-        Back to Lessons
-      </button>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <Card className="p-6">
-            <div className="flex flex-wrap justify-between items-start mb-4">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">{lesson.title}</h1>
-                <p className="text-blue-600 font-medium mt-1">{lesson.topic}</p>
+    <div className="space-y-6">
+      <div className="flex items-center space-x-2">
+        <Link to="/lessons" className="text-gray-500 hover:text-gray-700">
+          <ChevronLeft className="h-5 w-5" />
+        </Link>
+        <h1 className="text-2xl font-bold text-gray-800">{course.title}</h1>
+      </div>
+
+      {!enrolled ? (
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="h-48 bg-gray-100 relative">
+            {course.thumbnail ? (
+              <img src={`${API_URL}/${course.thumbnail}`} alt={course.title} className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-indigo-100">
+                <BookOpen className="h-16 w-16 text-indigo-600" />
               </div>
-              
-              <Badge variant={lesson.level}>
-                {lesson.level.charAt(0).toUpperCase() + lesson.level.slice(1)}
-              </Badge>
+            )}
+          </div>
+          <div className="p-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <div className="bg-indigo-100 px-3 py-1 rounded-full text-indigo-700 text-sm font-medium">
+                {course.level}
+              </div>
+              <div className="text-sm text-gray-500">{course.topic}</div>
             </div>
-            
-            <div className="flex items-center text-sm text-gray-500 mb-6">
-              <Clock size={16} className="mr-1" />
-              <span>{lesson.timeToComplete}</span>
+
+            {course.description && <p className="text-gray-700 mb-6">{course.description}</p>}
+
+            <button
+              onClick={handleEnroll}
+              disabled={checkoutLoading}
+              className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition-colors disabled:opacity-70"
+            >
+              {checkoutLoading ? "Processing..." : "Enroll in Course"}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="lg:col-span-1 bg-white rounded-lg shadow overflow-hidden">
+            <div className="p-4 border-b border-gray-200">
+              <h2 className="font-medium text-gray-800">Course Content</h2>
+              {progress && (
+                <div className="mt-2">
+                  <div className="flex justify-between text-xs text-gray-500 mb-1">
+                    <span>Progress</span>
+                    <span>{Math.round(progress.courseProgressPercentage)}%</span>
+                  </div>
+                  <div className="bg-gray-200 rounded-full h-2 w-full overflow-hidden">
+                    <div
+                      className="bg-indigo-600 h-full transition-all duration-300"
+                      style={{ width: `${progress.courseProgressPercentage}%` }}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
-            
-            <div 
-              className="prose prose-blue max-w-none"
-              dangerouslySetInnerHTML={{ __html: lesson.content }}
-            />
-            
-            <div className="mt-8 pt-6 border-t border-gray-100 flex justify-between items-center">
-              <Button 
-                variant="primary"
-                onClick={handleQuiz}
-              >
-                Take Quiz
-              </Button>
-              
-              <div className="flex items-center">
-                <span className="mr-2 text-gray-700">Mark Completed:</span>
+            <div className="divide-y divide-gray-200 max-h-[60vh] overflow-y-auto">
+              {lectures.map((lecture) => (
                 <button
-                  onClick={handleToggleCompletion}
-                  className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ${
-                    isCompleted ? 'bg-green-500 justify-end' : 'bg-gray-300 justify-start'
+                  key={lecture._id}
+                  onClick={() => handleLectureSelect(lecture)}
+                  className={`w-full text-left p-4 hover:bg-indigo-50 transition-colors ${
+                    currentLecture?._id === lecture._id ? "bg-indigo-50 border-l-4 border-indigo-600" : ""
                   }`}
                 >
-                  <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300`} />
+                  <div className="flex items-start">
+                    <div className="flex-shrink-0 mt-0.5">
+                      {progress?.completedLectures.includes(lecture._id) ? (
+                        <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-3 w-3 text-white"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </div>
+                      ) : (
+                        <div className="w-5 h-5 rounded-full border border-gray-300" />
+                      )}
+                    </div>
+                    <div className="ml-3">
+                      <div className="text-sm font-medium text-gray-800">{lecture.title}</div>
+                      {lecture.description && (
+                        <div className="text-xs text-gray-500 mt-1 line-clamp-1">{lecture.description}</div>
+                      )}
+                    </div>
+                  </div>
                 </button>
-              </div>
+              ))}
             </div>
-          </Card>
-        </div>
-        
-        <div>
-          <Card className="p-5 sticky top-24">
-            <div className="flex items-center mb-4">
-              <div className="bg-blue-100 p-2 rounded-full mr-3">
-                <BookOpen size={18} className="text-blue-600" />
-              </div>
-              <h3 className="font-medium text-gray-900">Lesson Details</h3>
+            <div className="p-4 border-t border-gray-200">
+              <button
+                onClick={startQuiz}
+                className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition-colors"
+              >
+                Take Quiz
+              </button>
             </div>
-            
-            <div className="space-y-4">
-              <div>
-                <p className="text-sm text-gray-600">Lesson Status</p>
-                <div className="flex items-center mt-1">
-                  <div className={`w-2 h-2 rounded-full ${isCompleted ? 'bg-green-500' : 'bg-yellow-500'} mr-2`}></div>
-                  <p className="font-medium text-gray-900">
-                    {isCompleted ? 'Completed' : 'In Progress'}
-                  </p>
-                </div>
-              </div>
-              
-              <div className="pt-4 border-t border-gray-100">
-                <p className="text-sm text-gray-600">Rewards</p>
-                <div className="flex space-x-3 mt-2">
-                  <div className="flex items-center bg-blue-50 px-3 py-1.5 rounded">
-                    <span className="text-blue-700 font-medium">+{lesson.xpReward} XP</span>
-                  </div>
-                  <div className="flex items-center bg-yellow-50 px-3 py-1.5 rounded">
-                    <span className="text-yellow-700 font-medium">+{lesson.coinReward}</span>
-                    <span className="ml-1">🪙</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="pt-4 border-t border-gray-100">
-                <p className="text-sm text-gray-600">What You'll Learn</p>
-                <ul className="mt-2 space-y-2">
-                  <li className="flex items-start">
-                    <CheckCircle size={16} className="text-green-500 mr-2 mt-0.5" />
-                    <span className="text-gray-700">What credit scores are and why they matter</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle size={16} className="text-green-500 mr-2 mt-0.5" />
-                    <span className="text-gray-700">Factors that impact your credit score</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle size={16} className="text-green-500 mr-2 mt-0.5" />
-                    <span className="text-gray-700">How to improve your credit score</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle size={16} className="text-green-500 mr-2 mt-0.5" />
-                    <span className="text-gray-700">Common credit score myths</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </Card>
-        </div>
-      </div>
-    </PageContainer>
-  );
-};
+          </div>
 
-export default LessonDetail;
+          <div className="lg:col-span-3 bg-white rounded-lg shadow overflow-hidden">
+            {currentLecture ? (
+              <div>
+                <div className="p-6">
+                  <h2 className="text-xl font-bold text-gray-800 mb-4">{currentLecture.title}</h2>
+
+                  {currentLecture.content?.video ? (
+                    <div className="aspect-video bg-black mb-6 rounded overflow-hidden">
+                      <video src={`${API_URL}/${currentLecture.content.video}`} controls className="w-full h-full" />
+                    </div>
+                  ) : (
+                    <div className="aspect-video bg-gray-100 mb-6 rounded flex items-center justify-center">
+                      <div className="text-center">
+                        <Play className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+                        <p className="text-gray-500">No video available</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {currentLecture.content?.text && (
+                    <div className="prose max-w-none text-gray-700">
+                      <p>{currentLecture.content.text}</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex justify-between p-4 border-t border-gray-200">
+                  <button
+                    onClick={handlePrevLecture}
+                    disabled={lectures.indexOf(currentLecture) === 0}
+                    className="flex items-center text-gray-700 hover:text-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <ChevronLeft className="h-5 w-5 mr-1" />
+                    Previous
+                  </button>
+                  <button
+                    onClick={handleNextLecture}
+                    disabled={lectures.indexOf(currentLecture) === lectures.length - 1}
+                    className="flex items-center text-gray-700 hover:text-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Next
+                    <ChevronRight className="h-5 w-5 ml-1" />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="p-6 text-center">
+                <BookOpen className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+                <h3 className="text-lg font-medium text-gray-800 mb-2">No lecture selected</h3>
+                <p className="text-gray-500">Select a lecture from the sidebar to start learning</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
