@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { LineChart, Newspaper, ArrowUpRight, ArrowDownRight, Link } from 'lucide-react';
-import PageContainer from '../components/layout/PageContainer';
+
 import Button from '../components/common/Button';
 import { format, isToday, isYesterday } from 'date-fns';
 
@@ -78,14 +78,14 @@ const LiveClock = () => {
       <div>
         {currentTime} <span className="font-medium">(IST)</span>
       </div>
-      <div className="text-xs italic text-white-500">
+      <div className="text-xs italic text-gray-500">
         {usTime} <span>(US)</span>
       </div>
     </div>
   );
 };
 
-const LiveUpdates: React.FC<{ onShowHistory: () => void }> = ({ onShowHistory }) => {
+const LiveUpdates: React.FC<{ onShowHistory?: () => void }> = ({ onShowHistory }) => {
   const [stocks, setStocks] = useState<StockData[]>([]);
   const [loadingStocks, setLoadingStocks] = useState(true);
   const [connectionError, setConnectionError] = useState<boolean>(false);
@@ -199,33 +199,33 @@ const LiveUpdates: React.FC<{ onShowHistory: () => void }> = ({ onShowHistory })
   }, []);
 
   return (
-    <PageContainer title="Live Updates" description="View real-time updates">
+    <div >
       <div className="mb-10">
         {/* Hero Section with Live Clock inside */}
-        <section className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl p-10 shadow-lg text-center relative">
+        <section className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white rounded-2xl p-10 shadow-lg text-center relative">
           <div className="absolute top-4 right-6">
             <LiveClock />
           </div>
           <h1 className="text-lg font-medium">Live Market & News Updates</h1>
-          <p className="text-center text-sm text-blue-100">Stay updated with real-time stock data and financial news.</p>
+          <p className="text-center text-sm text-indigo-100">Stay updated with real-time stock data and financial news.</p>
         </section>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Live Stocks */}
-        <section className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+        <section className="bg-white rounded-xl border border-gray-300 p-6 shadow-sm">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-              <LineChart size={24} className="text-blue-600" />
+              <LineChart size={24} className="text-indigo-600" />
               Live Stock Market
             </h2>
-            <Button size="sm" className="border-white text-white hover:bg-blue-700" onClick={onShowHistory}>
+            <Button size="sm" className="border-gray-200 text-gray-800 hover:bg-indigo-700" onClick={onShowHistory}>
               Show History
             </Button>
           </div>
           {connectionError ? (
-            <div className="border border-gray-200 p-4 rounded-lg mt-5 text-left">
-              <p className="text-[11px] text-gray-400 italic">Error loading stocks. Please check your connection or try again later.</p>
+            <div className="border border-gray-300 p-4 rounded-lg mt-5 text-left">
+              <p className="text-[11px] text-gray-500 italic">Error loading stocks. Please check your connection or try again later.</p>
             </div>
           ) : loadingStocks ? (
             <p className="text-center text-sm text-gray-600">Loading...</p>
@@ -255,7 +255,7 @@ const LiveUpdates: React.FC<{ onShowHistory: () => void }> = ({ onShowHistory })
                 return (
                   <div
                     key={index}
-                    className="bg-white border border-gray-200 p-4 rounded-2xl shadow-sm flex flex-col justify-between min-h-[160px]"
+                    className="bg-white border border-gray-300 p-4 rounded-2xl shadow-sm flex flex-col justify-between min-h-[160px]"
                   >
                     <div>
                       <h3 className="text-sm font-medium text-gray-700 mb-1">{stock.symbol}</h3>
@@ -274,17 +274,17 @@ const LiveUpdates: React.FC<{ onShowHistory: () => void }> = ({ onShowHistory })
                         {format(new Date(stock.time), 'dd MMM, h:mm a')} IST
                       </p>
                     </div>
-                      <div className="mt-4 text-xs text-gray-600 leading-tight italic">
-                        <div className="flex justify-between">
-                          <span className="text-gray-500">High: ${high}</span>
-                          <span className="text-gray-500" >Open: ${open}</span>
-                        </div>
-                        <div className="flex justify-between mt-1">
-                          <span className="text-gray-500">Low: ${low}</span>
-                          <span className="text-gray-500">Close: ${close}</span>
-                        </div>
+                    <div className="mt-4 text-xs text-gray-600 leading-tight italic">
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">High: ${high}</span>
+                        <span className="text-gray-500" >Open: ${open}</span>
                       </div>
-                   </div>
+                      <div className="flex justify-between mt-1">
+                        <span className="text-gray-500">Low: ${low}</span>
+                        <span className="text-gray-500">Close: ${close}</span>
+                      </div>
+                    </div>
+                  </div>
                 );
               })}
             </div>
@@ -292,7 +292,7 @@ const LiveUpdates: React.FC<{ onShowHistory: () => void }> = ({ onShowHistory })
         </section>
 
         {/* Live News */}
-        <section className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+        <section className="bg-white rounded-xl border border-gray-300 p-6 shadow-sm">
           <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
             <Newspaper size={24} className="text-green-600" />
             Live Financial News
@@ -300,18 +300,18 @@ const LiveUpdates: React.FC<{ onShowHistory: () => void }> = ({ onShowHistory })
           {loadingNews ? (
             <p className="text-center text-sm text-gray-600">Loading...</p>
           ) : errorNews ? (
-            <div className="border border-gray-200 p-4 rounded-lg mt-5 text-left">
-              <p className="text-[11px] text-gray-400 italic">Error loading news. Please check your connection or try again later.</p>
+            <div className="border border-gray-300 p-4 rounded-lg mt-5 text-left">
+              <p className="text-[11px] text-gray-500 italic">Error loading news. Please check your connection or try again later.</p>
             </div>
           ) : (
             <div className="space-y-4">
               {latestNews.map((item) => (
-                <div key={item.id} className="bg-gray-50 border border border-gray-300 p-4 rounded-xl shadow-sm">
+                <div key={item.id} className="bg-gray-50 border  border-gray-300 p-4 rounded-xl shadow-sm">
                   <h3 className="text-sm font-semibold text-gray-800">{item.headline}</h3>
                   <p className="text-xs text-gray-500 mt-1">{formatDate(item.datetime)}</p>
                   <p className="text-xs text-gray-700 mt-2">{item.summary}</p>
-                  <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 mt-1 inline-block">
-                    <Link size={14} className="text-xs text-blue-500 mt-1 inline-block" /> Read more
+                  <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-xs text-indigo-500 mt-1 inline-block">
+                    <Link size={14} className="text-xs text-indigo-500 mt-1 inline-block" /> Read more
                   </a>
                 </div>
               ))}
@@ -319,7 +319,7 @@ const LiveUpdates: React.FC<{ onShowHistory: () => void }> = ({ onShowHistory })
           )}
         </section>
       </div>
-    </PageContainer>
+    </div>
   );
 };
 

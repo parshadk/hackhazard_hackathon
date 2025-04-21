@@ -9,13 +9,25 @@ class GroqService {
     });
   }
 
-  async generateQuiz(topic, level, previousMistakes = []) {
+  async generateQuiz(topic, level) {
     const prompt = `Generate a personalized finance quiz about ${topic} for a ${level} level student. 
-    Previous mistakes to focus on: ${previousMistakes.join(', ')}. 
-    Format: Return a JSON with 3 questions, each having: question, options (array), correctAnswer, and explanation.`;
+    strictly in this format: "quiz":[
+          {
+            id: "1",
+            text: "What is compound interest?",
+            options: [
+              "Interest calculated only on the initial principal",
+              "Interest calculated on the initial principal and accumulated interest",
+              "A fixed interest rate that never changes",
+              "Interest that is only paid at the end of a loan term",
+            ],
+            correctAnswer: 1,
+          },]
+    return an array with  5 questions objects, each having:id, question labeled as text , options (array), correctAnswer.
+    `;
 
     const completion = await this.groq.chat.completions.create({
-      model: "deepseek-r1-distill-qwen-32b",
+      model: "llama-3.3-70b-versatile",
       messages: [
         {
           role: "system",
@@ -30,12 +42,12 @@ class GroqService {
       max_tokens: 2048,
     });
 
-    return JSON.parse(completion.choices[0].message.content);
+    return completion.choices[0].message.content
   }
 
   async explainConcept(concept, level) {
     const completion = await this.groq.chat.completions.create({
-      model: "deepseek-r1-distill-qwen-32b",
+      model: "llama-3.3-70b-versatile",
       messages: [
         {
           role: "system",
@@ -49,13 +61,12 @@ class GroqService {
       temperature: 0.6,
       max_tokens: 1024,
     });
-
     return completion.choices[0].message.content;
   }
 
   async analyzeMarketSentiment(newsData) {
     const completion = await this.groq.chat.completions.create({
-      model: "deepseek-r1-distill-qwen-32b",
+      model: "llama-3.3-70b-versatile",
       messages: [
         {
           role: "system",
@@ -75,7 +86,7 @@ class GroqService {
 
   async generateChallenge(currentEvent) {
     const completion = await this.groq.chat.completions.create({
-      model: "deepseek-r1-distill-qwen-32b",
+      model: "llama-3.3-70b-versatile",
       messages: [
         {
           role: "system",

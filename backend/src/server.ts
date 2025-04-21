@@ -69,11 +69,13 @@ app.use("/uploads", express.static("uploads"));
 import userRoutes from "./routes/user";
 import courseRoutes from "./routes/course";
 import adminRoutes from "./routes/admin";
-
+import qroq from "./controllers/qroq"
+import aigroqRoutes from "./routes/aigroq";
 // using routes
 app.use("/api", userRoutes);
 app.use("/api", courseRoutes);
 app.use("/api", adminRoutes);
+app.use("/api",aigroqRoutes)
 
 // REST API for static stock data
 app.get('/api/stocks', async (_req, res) => {

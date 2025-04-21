@@ -73,7 +73,7 @@ const App: React.FC = () => {
             }
           />
           <Route
-            path="/quiz/:id"
+            path="/quiz"
             element={
               <ProtectedRoute>
                 <Layout>

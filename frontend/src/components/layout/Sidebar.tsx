@@ -12,9 +12,10 @@ export default function Sidebar({ className = "" }: SidebarProps) {
 
   const navItems = [
     { name: "Dashboard", path: "/dashboard", icon: Home },
-    { name: "Lessons", path: "/lessons", icon: BookOpen },
+    { name: "Course", path: "/lessons", icon: BookOpen },
     { name: "Wallet", path: "/wallet", icon: Wallet },
     { name: "Profile", path: "/profile", icon: User },
+    {name:"Quiz", path:"/quiz", icon: BookOpen},
     { name: "Live Updates", path: "/live-updates", icon: LineChart },
   ]
 

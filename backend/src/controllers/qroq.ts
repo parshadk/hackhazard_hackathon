@@ -2,9 +2,15 @@
 import groqService from "../config/qroq.js";
 
 const generateQuiz = async (req:any, res:any) => {
-  const { topic, level, previousMistakes } = req.body;
+  const { topic, level } = req.body;
+  if (!topic){
+    let topic = "Finance";
+  }
+  if (!level){
+    let level = "Intermediate";
+  }
   try {
-    const quiz = await groqService.generateQuiz(topic, level, previousMistakes);
+    const quiz = await groqService.generateQuiz(topic, level);
     res.status(200).json(quiz);
   } catch (error) {
     console.error("Error generating quiz:", error);
