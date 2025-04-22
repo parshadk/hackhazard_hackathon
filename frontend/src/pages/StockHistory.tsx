@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // <-- Add this
-import PageContainer from '../components/layout/PageContainer';
+import { useNavigate } from 'react-router-dom';
 import Button from '../components/common/Button';
 import { LineChart as LineChartIcon } from 'lucide-react';
 import LineGraph from '../components/stockhistory/LineGraph';
@@ -12,7 +11,7 @@ interface StockData {
 }
 
 const StockHistory: React.FC = () => {
-  const navigate = useNavigate(); // <-- Hook to programmatically navigate
+  const navigate = useNavigate();
 
   const [stocks, setStocks] = useState<StockData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -68,7 +67,7 @@ const StockHistory: React.FC = () => {
   const chartData = selectedSymbol ? stocks.filter(stock => stock.symbol === selectedSymbol) : [];
 
   return (
-    <PageContainer title="Stock History" description="View past stock price updates">
+    <div className="p-4 md:p-6">
       <section className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm mb-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
@@ -76,7 +75,7 @@ const StockHistory: React.FC = () => {
             Stock History
           </h2>
           <Button
-            onClick={() => navigate('/live-updates')} // 👈 Navigates back to the Live page
+            onClick={() => navigate('/live-updates')}
             size="sm"
             className="border-white text-white hover:bg-blue-700"
           >
@@ -177,7 +176,7 @@ const StockHistory: React.FC = () => {
                     </option>
                   ))}
                 </select>
-              </div>``
+              </div>
 
               {selectedSymbol && chartData.length > 0 && (
                 <>
@@ -188,7 +187,7 @@ const StockHistory: React.FC = () => {
           </div>
         )}
       </section>
-    </PageContainer>
+    </div>
   );
 };
 

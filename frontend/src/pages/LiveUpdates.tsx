@@ -1,18 +1,14 @@
-import React, { useState } from 'react'
-import PageContainer from '../components/layout/PageContainer'
-import LiveClock from '../components/liveupdates/LiveClock'
-import LiveStocks from '../components/liveupdates/LiveStocks'
-import LiveNews from '../components/liveupdates/LiveNews'
+import React from 'react';
+import { useNavigate } from 'react-router-dom'; // Add this import
+import LiveClock from '../components/liveupdates/LiveClock';
+import LiveStocks from '../components/liveupdates/LiveStocks';
+import LiveNews from '../components/liveupdates/LiveNews';
 
 const LiveUpdates: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState('live') 
-
-  const handleShowHistory = () => {
-    setCurrentPage('stockHistory')
-  }
+  const navigate = useNavigate(); // Add this hook
 
   return (
-    <PageContainer title="Live Updates" description="View real-time updates">
+    <div className="p-4 md:p-6">
       <div className="mb-10">
         <section className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl p-10 shadow-lg text-center relative">
           <div className="absolute top-4 right-6">
@@ -24,11 +20,11 @@ const LiveUpdates: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <LiveStocks onShowHistory={handleShowHistory} />
+        <LiveStocks onShowHistory={() => navigate('/stock-history')} /> {/* Update this line */}
         <LiveNews />
       </div>
-    </PageContainer>
-  )
-}
+    </div>
+  );
+};
 
-export default LiveUpdates
+export default LiveUpdates;
