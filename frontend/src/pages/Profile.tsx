@@ -4,7 +4,7 @@ import { User, Mail, Key, Award, BookOpen, Coins } from "lucide-react"
 import toast from "react-hot-toast"
 
 export default function Profile() {
-  const { user, logout } = useAuth()
+  const { user, logout, changePassword } = useAuth()
   const [name, setName] = useState(user?.name || "")
   const [email, setEmail] = useState(user?.email || "")
   const [currentPassword, setCurrentPassword] = useState("")
@@ -50,15 +50,14 @@ export default function Profile() {
     }
 
     if (newPassword.length < 6) {
-      toast.error("Password must be at least 6 characters")
+      toast.error("New Password must be at least 6 characters")
       return
     }
 
     setLoading(true)
 
     try {
-      // In a real app, you would call your API
-      // For demo, we'll just show a success message
+      await changePassword(currentPassword, newPassword)
       setTimeout(() => {
         toast.success("Password changed successfully")
         setCurrentPassword("")

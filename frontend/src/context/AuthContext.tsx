@@ -19,6 +19,8 @@ interface AuthContextType {
   logout: () => void
   forgotPassword: (email: string) => Promise<void>
   resetPassword: (password: string, token: string) => Promise<void>
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>
+
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -34,7 +36,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (token) {
         try {
           axios.defaults.headers.common["token"] = `${token}`
-          const { data } = await axios.get(`${API_URL}/user/me`)
+          const { data } = await axios.get<{ user: User }>(`${API_URL}/user/me`)
           setUser(data.user)
           setIsAuthenticated(true)
         } catch (error) {
@@ -50,10 +52,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (email: string, password: string) => {
     try {
-      const { data } = await axios.post(`${API_URL}/user/login`, {
+      const { data } = await axios.post<{ token: string; user: User }>(`${API_URL}/user/login`, {
         email,
         password,
       })
+      
 
       localStorage.setItem("token", data.token)
       axios.defaults.headers.common["token"] = `${data.token}`
@@ -66,7 +69,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const register = async (name: string, email: string, password: string) => {
     try {
-      const { data } = await axios.post(`${API_URL}/user/register`, {
+      const { data } = await axios.post<{ activationToken: string }>(`${API_URL}/user/register`, {
         name,
         email,
         password,
@@ -113,6 +116,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
+  const changePassword = async (currentPassword: string, newPassword: string) => {
+    try {
+      const token = localStorage.getItem("token")
+      if (!token) {
+        throw new Error("User is not authenticated")
+      }
+  
+      await axios.post(
+        `${API_URL}/user/change-password`,
+        { currentPassword, newPassword },
+        {
+          headers: {
+            token,
+          },
+        }
+      )
+    } catch (error) {
+      throw error
+    }
+  }
+  
+
   return (
     <AuthContext.Provider
       value={{
@@ -125,6 +150,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         logout,
         forgotPassword,
         resetPassword,
+        changePassword,
       }}
     >
       {children}

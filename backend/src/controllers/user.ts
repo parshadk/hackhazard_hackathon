@@ -143,6 +143,8 @@ export const forgotPassword = TryCatch(async (req: any, res: any) => {
 });
 
 export const resetPassword = TryCatch(async (req: any, res: any) => {
+  console.log("Reset token received:", req.query.token);
+
   const decoded = jwt.verify(req.query.token as string, getEnvVar("Forgot_Secret")) as JwtPayload;
   const user = await User.findOne({ email: decoded.email });
 
