@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const token = localStorage.getItem("token")
       if (token) {
         try {
-          axios.defaults.headers.common["Authorization"] = `Bearer ${token}`
+          axios.defaults.headers.common["token"] = `${token}`
           const { data } = await axios.get(`${API_URL}/user/me`)
           setUser(data.user)
           setIsAuthenticated(true)
@@ -56,7 +56,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       })
 
       localStorage.setItem("token", data.token)
-      axios.defaults.headers.common["Authorization"] = `Bearer ${data.token}`
+      axios.defaults.headers.common["token"] = `${data.token}`
       setUser(data.user)
       setIsAuthenticated(true)
     } catch (error) {
