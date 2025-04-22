@@ -63,6 +63,7 @@ const MAX_CYCLE_SKIPS = Number(process.env.MAX_CYCLE_SKIPS) || 2;
 app.use(express.json());
 app.use(cors());
 
+
 app.use("/uploads", express.static("uploads"));
 
 // importing routes

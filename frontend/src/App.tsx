@@ -18,6 +18,7 @@ const Quiz = lazy(() => import("./pages/Quiz"))
 const Wallet = lazy(() => import("./pages/Wallet"))
 const Profile = lazy(() => import("./pages/Profile"))
 const LiveUpdates = lazy(() => import("./pages/LiveUpdates"))
+const StockHistory = lazy(() => import("./pages/StockHistory"))
 
 // Protected route wrapper
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -108,6 +109,16 @@ const App: React.FC = () => {
               <ProtectedRoute>
                 <Layout>
                   <LiveUpdates />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/stock-history"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <StockHistory />
                 </Layout>
               </ProtectedRoute>
             }

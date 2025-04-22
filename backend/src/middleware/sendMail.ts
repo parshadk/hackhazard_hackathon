@@ -10,6 +10,11 @@ const sendMail = async (email:any, subject:any, data:any) => {
     },
   });
 
+  if (!process.env.Gmail || !process.env.Password) {
+    throw new Error('Missing email credentials!');
+  }
+  
+
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>

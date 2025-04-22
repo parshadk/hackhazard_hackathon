@@ -1,16 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // <-- Add this
+import PageContainer from '../components/layout/PageContainer';
 import Button from '../components/common/Button';
 import { LineChart as LineChartIcon } from 'lucide-react';
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-  TooltipProps
-} from 'recharts';
+import LineGraph from '../components/stockhistory/LineGraph';
 
 interface StockData {
   symbol: string;
@@ -18,11 +11,9 @@ interface StockData {
   timestamp: string;
 }
 
-type StockHistoryProps = {
-  onBack: () => void;
-};
+const StockHistory: React.FC = () => {
+  const navigate = useNavigate(); // <-- Hook to programmatically navigate
 
-const StockHistory: React.FC<StockHistoryProps> = ({ onBack }) => {
   const [stocks, setStocks] = useState<StockData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [connectionError, setConnectionError] = useState<boolean>(false);
@@ -76,71 +67,19 @@ const StockHistory: React.FC<StockHistoryProps> = ({ onBack }) => {
   const symbolCount = Object.keys(groupedStocks).length || 1;
   const chartData = selectedSymbol ? stocks.filter(stock => stock.symbol === selectedSymbol) : [];
 
-  const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
-    if (active) {
-      // Check if payload exists and has valid data
-      if (!payload || payload.length === 0 || payload[0].value === null) {
-        return (
-          <div className="bg-white p-3 rounded-md border border-gray-300 text-sm shadow-sm">
-            <div className="text-gray-600 italic">Data not available</div>
-          </div>
-        );
-      }
-  
-      // Existing tooltip content for when data is available
-      const price = `${payload[0].value?.toFixed(2)} USD`;
-      const date = new Date(label as string);
-      const time = date.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
-      });
-      const dateStr = date.toLocaleDateString('en-GB', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-      });
-  
-      return (
-        <div className="bg-white p-3 rounded-md border border-gray-300 text-sm shadow-sm">
-          <div className="font-semibold text-black">{price}</div>
-          <div className="text-gray-600 italic">{`${time} ${dateStr}`}</div>
-        </div>
-      );
-    }
-  
-    return null;
-  };
-
-  const renderXAxisTick = ({ x, y, payload }: { x: number; y: number; payload: { value: string } }) => {
-    const date = new Date(payload.value);
-    const time = date.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    });
-    const day = date.getDate();
-    const month = date.toLocaleString('en-US', { month: 'short' });
-
-    return (
-      <g transform={`translate(${x},${y})`}>
-        <text x={0} y={0} dy={16} textAnchor="middle" fill="#666" fontSize={10}>
-          <tspan x="0" dy="0">{time}</tspan>
-          <tspan x="0" dy="12">{`${day} ${month}`}</tspan>
-        </text>
-      </g>
-    );
-  };
-
   return (
-    <div className="container mx-auto p-4">
+    <PageContainer title="Stock History" description="View past stock price updates">
       <section className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm mb-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
             <LineChartIcon size={24} className="text-blue-600" />
             Stock History
           </h2>
-          <Button onClick={onBack} size="sm" className="border-white text-white hover:bg-blue-700">
+          <Button
+            onClick={() => navigate('/live-updates')} // 👈 Navigates back to the Live page
+            size="sm"
+            className="border-white text-white hover:bg-blue-700"
+          >
             ← Back to Live
           </Button>
         </div>
@@ -185,7 +124,7 @@ const StockHistory: React.FC<StockHistoryProps> = ({ onBack }) => {
             </div>
 
             {connectionError ? (
-              <p className="text-red-600 text-center text-sm">Error loading stocks. Please check your connection or try again later.</p>
+              <p className="text-[12px] text-red-400 font-medium italic">Error loading stocks. Please check your connection or try again later.</p>
             ) : loading ? (
               <p className="text-center text-sm text-gray-600">Loading...</p>
             ) : stocks.length > 0 ? (
@@ -198,7 +137,7 @@ const StockHistory: React.FC<StockHistoryProps> = ({ onBack }) => {
                       <div className="space-y-2">
                         {records.map((stock, index) => (
                           <div key={index} className="text-xs text-gray-700 p-2 bg-white border border-gray-200 rounded-md">
-                            <div><strong>Price:</strong> ₹{stock.price}</div>
+                            <div><strong>Price:</strong> ${stock.price}</div>
                             <div><strong>Time:</strong> {formatDate(stock.timestamp)}</div>
                           </div>
                         ))}
@@ -238,79 +177,18 @@ const StockHistory: React.FC<StockHistoryProps> = ({ onBack }) => {
                     </option>
                   ))}
                 </select>
-              </div>
+              </div>``
 
               {selectedSymbol && chartData.length > 0 && (
                 <>
-                  <h3 className="text-md font-semibold text-gray-800 mb-2 text-center tracking-wide">
-                    {selectedSymbol} Price Trend History
-                  </h3>
-                  <div className="h-64">
-                    <ResponsiveContainer width="100%" height={300}>
-                      <LineChart
-                        data={[...chartData].reverse()}
-                        margin={{ top: 20, right: 30, left: 20, bottom: 50 }}
-                      >
-                        <defs>
-                          <linearGradient id="colorFill" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#3B82F6" stopOpacity={0.4} />
-                            <stop offset="90%" stopColor="#3B82F6" stopOpacity={0.1} />
-                            <stop offset="100%" stopColor="#3B82F6" stopOpacity={0} />
-                          </linearGradient>
-                        </defs>
-
-                        <CartesianGrid 
-                          vertical={false} 
-                          horizontal={true}
-                          stroke="rgba(229, 231, 235, 0.5)"
-                        />
-
-                        <XAxis
-                          dataKey="timestamp"
-                          interval={Math.ceil(chartData.length / 5)}
-                          axisLine={false}
-                          tickLine={false}
-                          height={50}
-                          tick={renderXAxisTick}
-                          tickMargin={15}
-                        />
-
-                        <YAxis
-                          domain={['auto', 'auto']}
-                          axisLine={false}
-                          tickLine={false}
-                          fontSize={10}
-                          stroke="#999"
-                          width={40}
-                          padding={{ bottom: 10 }}
-                        />
-
-                        <Tooltip content={<CustomTooltip />} />
-
-                        <Line
-                          type="monotone"
-                          dataKey="price"
-                          stroke="#3B82F6"
-                          strokeWidth={2.5}
-                          dot={false}
-                          connectNulls={false} // Correct placement for Line component
-                          activeDot={{
-                            r: 6,
-                            stroke: "#3B82F6",
-                            strokeWidth: 2,
-                            fill: "#FFFFFF",
-                          }}
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
+                  <LineGraph data={chartData} selectedSymbol={selectedSymbol} />
                 </>
               )}
             </div>
           </div>
         )}
       </section>
-    </div>
+    </PageContainer>
   );
 };
 
