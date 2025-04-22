@@ -216,3 +216,47 @@ export const changePassword = async (
     next(error);
   }
 };
+
+export const updateProfile = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { name } = req.body;
+    
+    if (!req.user) {
+      res.status(401).json({ success: false, message: "Unauthorized" });
+      return;
+    }
+
+    if (!name || typeof name !== 'string' || name.trim().length === 0) {
+      res.status(400).json({ success: false, message: "Valid name is required" });
+      return;
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { name: name.trim() },
+      { new: true, runValidators: true }
+    );
+
+    if (!user) {
+      res.status(404).json({ success: false, message: "User not found" });
+      return;
+    }
+
+    res.status(200).json({ 
+      success: true, 
+      message: "Profile updated successfully",
+      user: {
+        name: user.name,
+        email: user.email,
+        xp: user.xp,
+        level: user.level
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};

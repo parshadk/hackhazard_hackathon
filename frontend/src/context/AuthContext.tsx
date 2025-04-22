@@ -20,7 +20,7 @@ interface AuthContextType {
   forgotPassword: (email: string) => Promise<void>
   resetPassword: (password: string, token: string) => Promise<void>
   changePassword: (currentPassword: string, newPassword: string) => Promise<void>
-
+  updateProfile: (name: string) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -136,6 +136,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       throw error
     }
   }
+
+  const updateProfile = async (name: string) => {
+    try {
+      const token = localStorage.getItem("token")
+      if (!token) {
+        throw new Error("User is not authenticated")
+      }
+
+      const { data } = await axios.put<{ user: User }>(
+        `${API_URL}/user/profile`,
+        { name },
+        {
+          headers: {
+            token,
+          },
+        }
+      )
+
+      setUser(data.user) // Update the user in context
+    } catch (error) {
+      throw error
+    }
+  }
   
 
   return (
@@ -151,6 +174,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         forgotPassword,
         resetPassword,
         changePassword,
+        updateProfile
       }}
     >
       {children}
