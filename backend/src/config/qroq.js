@@ -11,7 +11,7 @@ class GroqService {
 
   async generateQuiz(topic, level) {
 
-    const prompt = `Generate a personalized finance quiz about ${topic} for a ${level} level student. return an array with  5 questions objects, each having:id, question labeled as text , options (array), correctAnswer.
+    const prompt = `Generate a personalized finance quiz about Finance, SIps, Investments for a intermediate level student. return an array with  5 questions objects, each having:id, question labeled as text , options (array), correctAnswer.
     Don't include any additional text or explanations. The quiz should be in the following format:
      "quiz":[
           {

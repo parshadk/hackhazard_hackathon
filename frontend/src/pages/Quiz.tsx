@@ -5,7 +5,7 @@ import LoadingSpinner from "../components/ui/LoadingSpinner"
 import toast from "react-hot-toast"
 import { API_URL } from "../utils/api"
 import axios from "axios"
-import { set } from "date-fns"
+
 interface Question {
   id: string
   text: string
@@ -80,7 +80,7 @@ export default function Quiz() {
     }
 
     fetchQuiz()
-  }, [id])
+  }, [])
 
   const handleOptionSelect = (optionIndex: number) => {
     setSelectedOption(optionIndex)

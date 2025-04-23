@@ -28,12 +28,12 @@ const generateQuiz = async (req:any, res:any) => {
   const cleaned = sanitizeCompletion(raw);
   let parsed;
   try {
-    parsed = JSON.parse(cleaned);
+    parsed =await  JSON.parse(cleaned);
   } catch (error) {
     console.error("Failed to parse quiz:", cleaned,error);
     res.status(500).json({ error: "Failed to generate quiz" });
   }
-  res.status(200).json(parsed);
+  res.status(200).json({ quiz: parsed.quiz });
 };
 
 const explainConcept = async (req:any, res:any) => {
