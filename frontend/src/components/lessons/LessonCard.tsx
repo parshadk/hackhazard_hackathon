@@ -20,6 +20,8 @@ interface LessonCardProps {
 }
 
 const LessonCard: React.FC<LessonCardProps> = ({ lesson, onStartLesson }) => {
+  console.log(lesson);
+  
   return (
     <Card className="h-full flex flex-col">
       <div className="p-5 flex-1">

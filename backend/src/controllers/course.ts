@@ -119,7 +119,8 @@ export const checkout = TryCatch(async (req: any, res: any) => {
 export const paymentVerification = TryCatch(async (req: any, res: any) => {
   const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
   const body = razorpay_order_id + "|" + razorpay_payment_id;
-
+  
+  
   const expectedSignature = crypto
     .createHmac("sha256", getEnvVar("RAZORPAY_KEY_SECRET"))
     .update(body)

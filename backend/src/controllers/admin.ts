@@ -7,7 +7,8 @@ import fs from "fs";
 import { User } from "../models/User";
 export const createCourse = TryCatch(async (req: any, res: any) => {
   const { title, description, category, createdBy, duration, price } = req.body;
-
+  //console.log(req.body,"sldfhs");
+  
   const image = req.file;
 
   await Courses.create({

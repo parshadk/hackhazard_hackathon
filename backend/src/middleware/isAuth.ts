@@ -31,7 +31,8 @@ export const isAuth = async (req:any, res:any, next:any) => {
   }
 };
 
-export const isAdmin = (req:any, res:any, next:any) => {
+export const 
+isAdmin = (req:any, res:any, next:any) => {
   try {
     if (req.user.role !== "admin")
       return res.status(403).json({

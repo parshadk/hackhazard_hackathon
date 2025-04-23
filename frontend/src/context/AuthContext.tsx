@@ -1,141 +1,158 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import axios from "axios"
-import { API_URL } from "../utils/api"
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import axios from "axios";
+import { API_URL } from "../utils/api";
 
 interface User {
-  name: string
-  email: string
-  xp: number
-  level: string
+  name: string;
+  email: string;
+  xp: number;
+  level: string;
+  role: string;
 }
 
 interface AuthContextType {
-  user: User | null
-  isAuthenticated: boolean
-  loading: boolean
-  login: (email: string, password: string) => Promise<void>
-  register: (name: string, email: string, password: string) => Promise<string>
-  verifyOTP: (otp: string, activationToken: string) => Promise<void>
-  logout: () => void
-  forgotPassword: (email: string) => Promise<void>
-  resetPassword: (password: string, token: string) => Promise<void>
-  changePassword: (currentPassword: string, newPassword: string) => Promise<void>
-  updateProfile: (name: string) => Promise<void>
+  user: User | null;
+  isAuthenticated: boolean;
+  loading: boolean;
+  btnLoading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string) => Promise<string>;
+  verifyOTP: (otp: string, activationToken: string) => Promise<void>;
+  fetchUser: () => Promise<void>;
+  logout: () => void;
+  forgotPassword: (email: string) => Promise<void>;
+  resetPassword: (password: string, token: string) => Promise<void>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [user, setUser] = useState<User | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [btnLoading, setBtnLoading] = useState(false);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const token = localStorage.getItem("token")
-      if (token) {
-        try {
-          axios.defaults.headers.common["token"] = `${token}`
-          const { data } = await axios.get<{ user: User }>(`${API_URL}/user/me`)
-          setUser(data.user)
-          setIsAuthenticated(true)
-        } catch (error) {
-          localStorage.removeItem("token")
-          delete axios.defaults.headers.common["Authorization"]
-        }
-      }
-      setLoading(false)
-    }
+    fetchUser(); // initial check on app load
+  }, []);
 
-    checkAuth()
-  }, [])
+  const fetchUser = async () => {
+    setLoading(true);
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setIsAuthenticated(false);
+      setUser(null);
+      setLoading(false);
+      return;
+    }
+    try {
+      axios.defaults.headers.common["token"] = token;
+      const { data } = await axios.get<{ user: User }>(`${API_URL}/user/me`);
+      setUser(data.user);
+      setIsAuthenticated(true);
+    } catch (error) {
+      console.error("Fetch user failed:", error);
+      localStorage.removeItem("token");
+      delete axios.defaults.headers.common["token"];
+      setIsAuthenticated(false);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const login = async (email: string, password: string) => {
+    setBtnLoading(true);
     try {
-      const { data } = await axios.post<{ token: string; user: User }>(`${API_URL}/user/login`, {
-        email,
-        password,
-      })
-      
-
-      localStorage.setItem("token", data.token)
-      axios.defaults.headers.common["token"] = `${data.token}`
-      setUser(data.user)
-      setIsAuthenticated(true)
+      const { data } = await axios.post<{ token: string; user: User }>(`${API_URL}/user/login`, { email, password });
+      localStorage.setItem("token", data.token);
+      axios.defaults.headers.common["token"] = data.token;
+      setUser(data.user);
+      setIsAuthenticated(true);
     } catch (error) {
-      throw error
+      setIsAuthenticated(false);
+      throw error;
+    } finally {
+      setBtnLoading(false);
     }
-  }
+  };
 
   const register = async (name: string, email: string, password: string) => {
+    setBtnLoading(true);
     try {
       const { data } = await axios.post<{ activationToken: string }>(`${API_URL}/user/register`, {
         name,
         email,
         password,
-      })
-      return data.activationToken
+      });
+      return data.activationToken;
     } catch (error) {
-      throw error
+      throw error;
+    } finally {
+      setBtnLoading(false);
     }
-  }
+  };
 
   const verifyOTP = async (otp: string, activationToken: string) => {
+    setBtnLoading(true);
     try {
-      await axios.post(`${API_URL}/user/verify`, {
-        otp,
-        activationToken,
-      })
+      await axios.post(`${API_URL}/user/verify`, { otp, activationToken });
+      localStorage.removeItem("activationToken");
     } catch (error) {
-      throw error
+      throw error;
+    } finally {
+      setBtnLoading(false);
     }
-  }
+  };
 
   const logout = () => {
-    localStorage.removeItem("token")
-    delete axios.defaults.headers.common["Authorization"]
-    setUser(null)
-    setIsAuthenticated(false)
-  }
+    localStorage.removeItem("token");
+    delete axios.defaults.headers.common["token"];
+    setUser(null);
+    setIsAuthenticated(false);
+  };
 
   const forgotPassword = async (email: string) => {
+    setBtnLoading(true);
     try {
-      await axios.post(`${API_URL}/user/forgot`, { email })
+      await axios.post(`${API_URL}/user/forgot`, { email });
     } catch (error) {
-      throw error
+      throw error;
+    } finally {
+      setBtnLoading(false);
     }
-  }
+  };
 
   const resetPassword = async (password: string, token: string) => {
+    setBtnLoading(true);
     try {
-      await axios.post(`${API_URL}/user/reset?token=${token}`, {
-        password,
-      })
+      await axios.post(`${API_URL}/user/reset?token=${token}`, { password });
     } catch (error) {
-      throw error
+      throw error;
+    } finally {
+      setBtnLoading(false);
     }
-  }
+  };
 
   const changePassword = async (currentPassword: string, newPassword: string) => {
+    setBtnLoading(true);
     try {
-      const token = localStorage.getItem("token")
-      if (!token) {
-        throw new Error("User is not authenticated")
-      }
-  
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("User is not authenticated");
       await axios.post(
         `${API_URL}/user/change-password`,
         { currentPassword, newPassword },
-        {
-          headers: {
-            token,
-          },
-        }
-      )
+        { headers: { token } }
+      );
     } catch (error) {
-      throw error
+      throw error;
+    } finally {
+      setBtnLoading(false);
     }
-  }
+  };
+
+ 
 
   const updateProfile = async (name: string) => {
     try {
@@ -167,25 +184,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         user,
         isAuthenticated,
         loading,
+        btnLoading,
         login,
         register,
         verifyOTP,
+        fetchUser,
         logout,
         forgotPassword,
         resetPassword,
         changePassword,
-        updateProfile
       }}
     >
       {children}
     </AuthContext.Provider>
-  )
-}
+  );
+};
 
 export const useAuth = () => {
-  const context = useContext(AuthContext)
+  const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider")
+    throw new Error("useAuth must be used within an AuthProvider");
   }
-  return context
-}
+  return context;
+};
