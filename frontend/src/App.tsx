@@ -69,9 +69,9 @@ const App: React.FC = () => {
                 {/* <Layout>
                   <Courses />
                 </Layout> */}
-                <AdminLayout>
+                <Layout>
                   <Courses />
-                </AdminLayout>
+                </Layout>
               </ProtectedRoute>
             }
           />
@@ -155,7 +155,7 @@ const App: React.FC = () => {
               </ProtectedRoute>
             }
           />
-          <Route
+          {/* <Route
             path="/wallet"
             element={
               <ProtectedRoute>
@@ -164,7 +164,7 @@ const App: React.FC = () => {
                 </Layout>
               </ProtectedRoute>
             }
-          />
+          /> */}
           <Route
             path="/profile"
             element={

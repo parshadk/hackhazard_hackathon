@@ -122,7 +122,7 @@ export const paymentVerification = TryCatch(async (req: any, res: any) => {
   
   
   const expectedSignature = crypto
-    .createHmac("sha256", getEnvVar("RAZORPAY_KEY_SECRET"))
+    .createHmac("sha256", getEnvVar("Razorpay_Secret"))
     .update(body)
     .digest("hex");
 
