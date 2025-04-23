@@ -4,7 +4,15 @@ import { Toaster } from "react-hot-toast"
 import { useAuth } from "./context/AuthContext"
 import Layout from "./components/layout/Layout"
 import LoadingSpinner from "./components/ui/LoadingSpinner"
-
+import CourseStudy from "./pages/CoursesStudy";
+import Lectures from "./pages/Lectures";
+import AdminDashbord from "./admin/dashboard/AdminDashboard";
+import AdminCourses from "./admin/courses/AdminCourses";
+import AdminUsers from "./admin/users/AdminUser";
+import Courses from "./pages/Courses";
+import AdminLayout from "./admin/utils/layout"
+import CourseDescription from "./pages/CourseDescription"
+import PaymentSuccess from "./pages/PaymentSuccess"
 // Lazy-loaded pages
 const Landing = lazy(() => import("./pages/Landing"))
 const Login = lazy(() => import("./pages/Login"))
@@ -12,8 +20,8 @@ const Register = lazy(() => import("./pages/Register"))
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"))
 const ResetPassword = lazy(() => import("./pages/ResetPassword"))
 const Dashboard = lazy(() => import("./pages/Dashboard"))
-const Lessons = lazy(() => import("./pages/Lessons"))
-const LessonDetail = lazy(() => import("./pages/LessonDetails"))
+//const Courses = lazy(() => import("./pages/Courses"))
+const LessonDetail = lazy(() => import("./pages/CourseDescription"))
 const Quiz = lazy(() => import("./pages/Quiz"))
 const Wallet = lazy(() => import("./pages/Wallet"))
 const Profile = lazy(() => import("./pages/Profile"))
@@ -31,6 +39,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 }
 
 const App: React.FC = () => {
+  const {user} = useAuth()
   return (
     <>
       <Suspense fallback={<LoadingSpinner />}>
@@ -57,9 +66,12 @@ const App: React.FC = () => {
             path="/lessons"
             element={
               <ProtectedRoute>
-                <Layout>
-                  <Lessons />
-                </Layout>
+                {/* <Layout>
+                  <Courses />
+                </Layout> */}
+                <AdminLayout>
+                  <Courses />
+                </AdminLayout>
               </ProtectedRoute>
             }
           />
@@ -68,8 +80,68 @@ const App: React.FC = () => {
             element={
               <ProtectedRoute>
                 <Layout>
-                  <LessonDetail />
+                  {user?.role === 'admin' ? <Lectures user={user} /> : <CourseDescription user={user} />}
                 </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/payment-success/:id"
+            element={
+              <ProtectedRoute>
+                {/* <Layout> */}
+                  <PaymentSuccess user={user} />
+                {/* </Layout> */}
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/course/study/:id"
+            element={
+              <ProtectedRoute>
+                {/* <Layout> */}
+                  <CourseStudy user={user} />
+                {/* </Layout> */}
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/lectures/:id"
+            element={
+              <ProtectedRoute>
+                {/* <Layout> */}
+                  <Lectures user={user} />
+                {/* </Layout> */}
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                {/* <Layout> */}
+                  <AdminDashbord user={user} />
+                {/* </Layout> */}
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/course"
+            element={
+              <ProtectedRoute>
+                {/* <Layout> */}
+                  <AdminCourses user={user} />
+                {/* </Layout> */}
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedRoute>
+                {/* <Layout> */}
+                  <AdminUsers user={user} />
+                {/* </Layout> */}
               </ProtectedRoute>
             }
           />

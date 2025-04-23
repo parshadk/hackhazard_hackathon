@@ -113,7 +113,7 @@ export const loginUser = TryCatch(async (req: any, res: any) => {
   res.json({
     message: `Welcome back ${user.name}`,
     token,
-    user: { name: user.name, email: user.email, xp: user.xp, level: user.level },
+    user
   });
 });
 
@@ -122,7 +122,7 @@ export const myProfile = TryCatch(async (req: any, res: any) => {
   if (!user) {
     return res.status(404).json({ message: "User not found" });
   }
-  res.json({ user: { name: user.name, email: user.email, xp: user.xp, level: user.level } });
+  res.json({ user });
 });
 
 export const forgotPassword = TryCatch(async (req: any, res: any) => {
