@@ -10,8 +10,10 @@ class GroqService {
   }
 
   async generateQuiz(topic, level) {
-    const prompt = `Generate a personalized finance quiz about ${topic} for a ${level} level student. 
-    strictly in this format: "quiz":[
+
+    const prompt = `Generate a personalized finance quiz about ${topic} for a ${level} level student. return an array with  5 questions objects, each having:id, question labeled as text , options (array), correctAnswer.
+    Don't include any additional text or explanations. The quiz should be in the following format:
+     "quiz":[
           {
             id: "1",
             text: "What is compound interest?",
@@ -22,12 +24,12 @@ class GroqService {
               "Interest that is only paid at the end of a loan term",
             ],
             correctAnswer: 1,
-          },]
-    return an array with  5 questions objects, each having:id, question labeled as text , options (array), correctAnswer.
+          },] 
+    
     `;
 
     const completion = await this.groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+      model: "llama-3.1-8b-instant",
       messages: [
         {
           role: "system",
@@ -38,7 +40,7 @@ class GroqService {
           content: prompt,
         },
       ],
-      temperature: 0.7,
+      temperature: 0.8,
       max_tokens: 2048,
     });
 
@@ -47,7 +49,7 @@ class GroqService {
 
   async explainConcept(concept, level) {
     const completion = await this.groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+      model: "llama-3.1-8b-instant",
       messages: [
         {
           role: "system",
@@ -66,7 +68,7 @@ class GroqService {
 
   async analyzeMarketSentiment(newsData) {
     const completion = await this.groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+      model: "llama-3.1-8b-instant",
       messages: [
         {
           role: "system",
@@ -86,7 +88,7 @@ class GroqService {
 
   async generateChallenge(currentEvent) {
     const completion = await this.groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+      model: "llama-3.1-8b-instant",
       messages: [
         {
           role: "system",

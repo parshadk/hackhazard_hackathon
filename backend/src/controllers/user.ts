@@ -1,12 +1,12 @@
-import {User} from "../models/User" ;
+import { User } from "../models/User";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import sendMail, { sendForgotMail } from "../middleware/sendMail";
 import TryCatch from "../middleware/TryCatch";
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 
 interface AuthenticatedRequest extends Request {
-  user: {
+  user?: {
     _id: string;
     name: string;
   };
@@ -29,16 +29,11 @@ const getEnvVar = (key: string): string => {
   return value;
 };
 
-    // Function ubdate => level and xp
 const updateXPAndLevel = async (userId: string) => {
   const user = await User.findById(userId);
-  if (!user) {
-    throw new Error("User not found");
-  }
-
-       // Update XP => exm: 25 XP for completing a video
+  if (!user) throw new Error("User not found");
+  
   user.xp += 25;
-
 
   if (user.xp >= 100 && user.level === "Beginner") {
     user.level = "Intermediate";
@@ -46,16 +41,16 @@ const updateXPAndLevel = async (userId: string) => {
     user.level = "Advanced";
   }
 
-
   await user.save();
 };
 
-export const register = TryCatch(async (req: any, res: any) => {
+export const register = TryCatch(async (req: Request, res: Response, next: NextFunction) => {
   const { email, name, password } = req.body;
 
   const existingUser = await User.findOne({ email });
   if (existingUser) {
-    return res.status(400).json({ message: "User already exists" });
+    res.status(400).json({ message: "User already exists" });
+    return next();
   }
 
   const hashPassword = await bcrypt.hash(password, 10);
@@ -73,37 +68,42 @@ export const register = TryCatch(async (req: any, res: any) => {
     message: "OTP sent to your email",
     activationToken,
   });
+  return next();
 });
 
-export const verifyUser = TryCatch(async (req: any, res: any) => {
+export const verifyUser = TryCatch(async (req: Request, res: Response, next: NextFunction) => {
   const { otp, activationToken } = req.body;
 
   const verify = jwt.verify(activationToken, getEnvVar("Activation_Secret")) as JwtPayload;
-  console.log(verify);
   
   if (!verify || verify.otp !== Number(otp)) {
-    return res.status(400).json({ message: "Invalid or expired OTP" });
+    res.status(400).json({ message: "Invalid or expired OTP" });
+    return next();
   }
 
   if (!verify.user) {
-    return res.status(400).json({ message: "Invalid token payload" });
+    res.status(400).json({ message: "Invalid token payload" });
+    return next();
   }
 
   await User.create(verify.user);
   res.json({ message: "User registered successfully" });
+  return next();
 });
 
-export const loginUser = TryCatch(async (req: any, res: any) => {
+export const loginUser = TryCatch(async (req: Request, res: Response, next: NextFunction) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({ email });
   if (!user) {
-    return res.status(400).json({ message: "Invalid email or password" });
+    res.status(400).json({ message: "Invalid email or password" });
+    return next();
   }
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
   if (!isPasswordValid) {
-    return res.status(400).json({ message: "Invalid email or password" });
+    res.status(400).json({ message: "Invalid email or password" });
+    return next();
   }
 
   const token = jwt.sign({ _id: user._id }, getEnvVar("Jwt_Sec"), {
@@ -115,22 +115,30 @@ export const loginUser = TryCatch(async (req: any, res: any) => {
     token,
     user
   });
+  return next();
 });
 
-export const myProfile = TryCatch(async (req: any, res: any) => {
+export const myProfile = TryCatch(async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    res.status(401).json({ message: "Unauthorized" });
+    return next();
+  }
+
   const user = await User.findById(req.user._id);
   if (!user) {
-    return res.status(404).json({ message: "User not found" });
+    res.status(404).json({ message: "User not found" });
+    return next();
   }
   res.json({ user });
 });
 
-export const forgotPassword = TryCatch(async (req: any, res: any) => {
+export const forgotPassword = TryCatch(async (req: Request, res: Response, next: NextFunction) => {
   const { email } = req.body;
 
   const user = await User.findOne({ email });
   if (!user) {
-    return res.status(404).json({ message: "No user with this email" });
+    res.status(404).json({ message: "No user with this email" });
+    return next();
   }
 
   const token = jwt.sign({ email }, getEnvVar("Forgot_Secret"), { expiresIn: "5m" });
@@ -140,18 +148,22 @@ export const forgotPassword = TryCatch(async (req: any, res: any) => {
   await user.save();
 
   res.json({ message: "Reset password link sent to your email" });
+  return next();
 });
 
-export const resetPassword = TryCatch(async (req: any, res: any) => {
-  const decoded = jwt.verify(req.query.token as string, getEnvVar("Forgot_Secret")) as JwtPayload;
+export const resetPassword = TryCatch(async (req: Request, res: Response, next: NextFunction) => {
+  const token = req.query.token as string;
+  const decoded = jwt.verify(token, getEnvVar("Forgot_Secret")) as JwtPayload;
   const user = await User.findOne({ email: decoded.email });
 
   if (!user) {
-    return res.status(404).json({ message: "User not found" });
+    res.status(404).json({ message: "User not found" });
+    return next();
   }
 
   if (!user.resetPasswordExpire || user.resetPasswordExpire.getTime() < Date.now()) {
-    return res.status(400).json({ message: "Token expired" });
+    res.status(400).json({ message: "Token expired" });
+    return next();
   }
 
   user.password = await bcrypt.hash(req.body.password, 10);
@@ -159,4 +171,83 @@ export const resetPassword = TryCatch(async (req: any, res: any) => {
   await user.save();
 
   res.json({ message: "Password reset successfully" });
+  return next();
 });
+
+export const changePassword = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    
+    if (!req.user) {
+      res.status(401).json({ success: false, message: "Unauthorized" });
+      return;
+    }
+
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      res.status(404).json({ success: false, message: "User not found" });
+      return;
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      res.status(400).json({ success: false, message: "Current password is incorrect" });
+      return;
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    res.status(200).json({ success: true, message: "Password changed successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateProfile = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { name } = req.body;
+    
+    if (!req.user) {
+      res.status(401).json({ success: false, message: "Unauthorized" });
+      return;
+    }
+
+    if (!name || typeof name !== 'string' || name.trim().length === 0) {
+      res.status(400).json({ success: false, message: "Valid name is required" });
+      return;
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { name: name.trim() },
+      { new: true, runValidators: true }
+    );
+
+    if (!user) {
+      res.status(404).json({ success: false, message: "User not found" });
+      return;
+    }
+
+    res.status(200).json({ 
+      success: true, 
+      message: "Profile updated successfully",
+      user: {
+        name: user.name,
+        email: user.email,
+        xp: user.xp,
+        level: user.level
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};

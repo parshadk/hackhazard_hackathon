@@ -152,6 +152,51 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const changePassword = async (currentPassword: string, newPassword: string) => {
+    try {
+      const token = localStorage.getItem("token")
+      if (!token) {
+        throw new Error("User is not authenticated")
+      }
+  
+      await axios.post(
+        `${API_URL}/user/change-password`,
+        { currentPassword, newPassword },
+        {
+          headers: {
+            token,
+          },
+        }
+      )
+    } catch (error) {
+      throw error
+    }
+  }
+
+  const updateProfile = async (name: string) => {
+    try {
+      const token = localStorage.getItem("token")
+      if (!token) {
+        throw new Error("User is not authenticated")
+      }
+
+      const { data } = await axios.put<{ user: User }>(
+        `${API_URL}/user/profile`,
+        { name },
+        {
+          headers: {
+            token,
+          },
+        }
+      )
+
+      setUser(data.user) // Update the user in context
+    } catch (error) {
+      throw error
+    }
+  }
+  
+
   return (
     <AuthContext.Provider
       value={{
