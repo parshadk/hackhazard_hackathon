@@ -38,120 +38,42 @@ export default function Quiz() {
     const fetchQuiz = async () => {
       try {
         const res = await axios.post(`${API_URL}/quiz`)
-        const data = res.data
-        const cleanStr = data.replace(/^```json|```$/g, '').trim();
-        const parsed = JSON.parse(cleanStr);
-        const mockQuestions: Question[] = [
-          {
-            id: "1",
-            text: "What is compound interest?",
-            options: [
-              "Interest calculated only on the initial principal",
-              "Interest calculated on the initial principal and accumulated interest",
-              "A fixed interest rate that never changes",
-              "Interest that is only paid at the end of a loan term",
-            ],
-            correctAnswer: 1,
-          },
-          {
-            id: "2",
-            text: "Which of the following is NOT a type of investment?",
-            options: ["Stocks", "Bonds", "Credit Score", "Real Estate"],
-            correctAnswer: 2,
-          },
-          {
-            id: "3",
-            text: "What is diversification in investing?",
-            options: [
-              "Putting all your money in one promising stock",
-              "Spreading investments across various assets to reduce risk",
-              "Investing only in government bonds",
-              "Changing your investment strategy frequently",
-            ],
-            correctAnswer: 1,
-          },
-          {
-            id: "4",
-            text: "What is a 401(k)?",
-            options: [
-              "A type of tax",
-              "A retirement savings plan sponsored by an employer",
-              "A government loan program",
-              "A type of health insurance",
-            ],
-            correctAnswer: 1,
-          },
-          {
-            id: "5",
-            text: "What does APR stand for?",
-            options: [
-              "Annual Percentage Rate",
-              "Approved Payment Return",
-              "Annual Principal Return",
-              "Adjusted Payment Rate",
-            ],
-            correctAnswer: 0,
-          },
-        ]
+        const data = res.data as {quiz: Question[]}
+      
 
-        setQuestions(parsed.quiz)
-        setAnswers(new Array(parsed.quiz.length).fill(null))
+        setQuestions(data.quiz)
+        setAnswers(new Array(data.quiz.length).fill(null))
       } catch (error) {
         console.error("Failed to fetch quiz", error)
         const mockQuestions: Question[] = [
-          {
-            id: "1",
-            text: "What is compound interest?",
-            options: [
-              "Interest calculated only on the initial principal",
-              "Interest calculated on the initial principal and accumulated interest",
-              "A fixed interest rate that never changes",
-              "Interest that is only paid at the end of a loan term",
-            ],
-            correctAnswer: 1,
-          },
-          {
-            id: "2",
-            text: "Which of the following is NOT a type of investment?",
-            options: ["Stocks", "Bonds", "Credit Score", "Real Estate"],
-            correctAnswer: 2,
-          },
-          {
-            id: "3",
-            text: "What is diversification in investing?",
-            options: [
-              "Putting all your money in one promising stock",
-              "Spreading investments across various assets to reduce risk",
-              "Investing only in government bonds",
-              "Changing your investment strategy frequently",
-            ],
-            correctAnswer: 1,
-          },
-          {
-            id: "4",
-            text: "What is a 401(k)?",
-            options: [
-              "A type of tax",
-              "A retirement savings plan sponsored by an employer",
-              "A government loan program",
-              "A type of health insurance",
-            ],
-            correctAnswer: 1,
-          },
-          {
-            id: "5",
-            text: "What does APR stand for?",
-            options: [
-              "Annual Percentage Rate",
-              "Approved Payment Return",
-              "Annual Principal Return",
-              "Adjusted Payment Rate",
-            ],
-            correctAnswer: 0,
-          },
+          { id: "1", text: "What is compound interest?", options: [ "Interest on principal", "Interest on principal+interest", "Fixed rate", "Paid at loan end" ], correctAnswer: 1 },
+          { id: "2", text: "Which of the following is NOT a type of investment?", options: ["Stocks", "Bonds", "Credit Score", "Real Estate"], correctAnswer: 2 },
+          { id: "3", text: "What is diversification in investing?", options: ["One stock", "Spread across assets", "Only bonds", "Switch often"], correctAnswer: 1 },
+          { id: "4", text: "What is a 401(k)?", options: ["A tax", "Employer retirement plan", "Loan program", "Health insurance"], correctAnswer: 1 },
+          { id: "5", text: "What does APR stand for?", options: ["Annual Percentage Rate", "Approved Payment Return", "Annual Principal Return", "Adjusted Payment Rate"], correctAnswer: 0 },
+          { id: "6", text: "What is a mutual fund?", options: ["A single stock", "A pool of stocks/bonds", "Government bond", "High‑risk derivative"], correctAnswer: 1 },
+          { id: "7", text: "What is liquidity?", options: ["Ease of converting to cash", "Investment return", "Credit availability", "Debt level"], correctAnswer: 0 },
+          { id: "8", text: "What is a budget?", options: ["Track income/expenses", "Only save money", "Borrow funds", "Calculate taxes"], correctAnswer: 0 },
+          { id: "9", text: "What is an ETF?", options: ["Exchange-Traded Fund", "Electronic Transfer Form", "Equity Trade Fee", "Earnings Tax Fund"], correctAnswer: 0 },
+          { id: "10", text: "What is the time value of money?", options: ["Money’s present vs future value", "Fixed interest rate", "Loan term", "Tax benefit"], correctAnswer: 0 },
+          { id: "11", text: "What is a credit score?", options: ["Numerical creditworthiness", "Loan amount", "Interest rate", "Tax bracket"], correctAnswer: 0 },
+          { id: "12", text: "What is a debit card?", options: ["Borrows money", "Linked to checking", "Pays interest", "Credit line"], correctAnswer: 1 },
+          { id: "13", text: "What is inflation?", options: ["Price decrease", "Price increase", "No impact", "Only for investors"], correctAnswer: 1 },
+          { id: "14", text: "What is a Roth IRA?", options: ["Tax-free withdrawals", "Tax-deferred withdrawals", "Taxed withdrawals", "Self-employed only"], correctAnswer: 0 },
+          { id: "15", text: "What is penalty APR?", options: ["Reduced rate", "Higher rate after default", "Fixed rate", "Introductory rate"], correctAnswer: 1 },
+          { id: "16", text: "What is principal on a loan?", options: ["Total interest paid", "Original amount borrowed", "Monthly fee", "Credit limit"], correctAnswer: 1 },
+          { id: "17", text: "What is default risk?", options: ["Price volatility", "Borrower failure to pay", "Liquidity issue", "Tax penalty"], correctAnswer: 1 },
+          { id: "18", text: "What is a dividend?", options: ["Company profit share", "Loan interest", "Tax fee", "Stock split"], correctAnswer: 0 },
+          { id: "19", text: "What is an index fund?", options: ["Actively managed fund", "Tracks a market index", "High‑risk hedge fund", "Government bond"], correctAnswer: 1 },
+          { id: "20", text: "What is credit utilization?", options: ["Debt-to-income ratio", "Used credit vs limit", "Annual fee", "Credit score"], correctAnswer: 1 },
         ]
-        setQuestions(mockQuestions)
-        setAnswers(new Array(mockQuestions.length).fill(null))
+        const shuffled = mockQuestions
+        .map(q => ({ q, sort: Math.random() }))
+        .sort((a, b) => a.sort - b.sort)
+        .map(({ q }) => q)
+        const randomFive = shuffled.slice(0, 5)
+        setQuestions(randomFive)
+        setAnswers(new Array(randomFive.length).fill(null))
       } finally {
         setLoading(false)
       }
