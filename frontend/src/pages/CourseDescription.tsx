@@ -123,9 +123,12 @@ const CourseDescription: React.FC<CourseDescriptionProps> = ({ user }) => {
               <div className="md:flex">
                 <div className="md:w-1/2 h-96">
                   <img
-                    src={`${server}/${course.image}`}
+                    src={course.image?.includes("res.cloudinary.com") ? course.image : `${server}/${course.image}`}
                     alt={course.title}
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://via.placeholder.com/300x200?text=Course+Image';
+                    }}
                   />
                 </div>
                 <div className="p-8 md:w-1/2 space-y-6">

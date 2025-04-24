@@ -42,6 +42,17 @@ const Lecture: React.FC<LectureProps> = ({ user }) => {
   const params = useParams<{ id: string }>();
   const navigate = useNavigate();
 
+  // Function to check if URL is from Cloudinary
+  const isCloudinaryUrl = (url: string) => {
+    return url?.includes('res.cloudinary.com');
+  };
+
+  // Function to get proper video URL
+  const getVideoUrl = (videoPath: string) => {
+    if (!videoPath) return '';
+    return isCloudinaryUrl(videoPath) ? videoPath : `${server}/${videoPath}`;
+  };
+
   if (user && user.role !== "admin" && !user.subscription.includes(params.id)) {
     return navigate("/lesson/:id");
   }
@@ -171,7 +182,7 @@ const Lecture: React.FC<LectureProps> = ({ user }) => {
                       <>
                         <div className="aspect-w-16 aspect-h-9 bg-black rounded-lg overflow-hidden">
                           <video
-                            src={`${server}/${lecture.video}`}
+                            src={getVideoUrl(lecture.video)}
                             controls
                             controlsList="nodownload noremoteplayback"
                             disablePictureInPicture
@@ -266,19 +277,19 @@ const Lecture: React.FC<LectureProps> = ({ user }) => {
                         </div>
                       )}
 
-                            {btnLoading && (
-                              <div className="w-full mb-2"> {/* Added mb-2 for spacing */}
-                                <div className="w-full bg-gray-200 rounded-full h-2.5">
-                                  <div
-                                    className="bg-blue-600 h-2.5 rounded-full"
-                                    style={{ width: `${uploadProgress}%` }}
-                                  ></div>
-                                </div>
-                                <p className="text-xs text-center mt-1 text-gray-600">
-                                  Uploading: {uploadProgress}%
-                                </p>
-                              </div>
-                            )}
+                      {btnLoading && (
+                        <div className="w-full mb-2">
+                          <div className="w-full bg-gray-200 rounded-full h-2.5">
+                            <div
+                              className="bg-blue-600 h-2.5 rounded-full"
+                              style={{ width: `${uploadProgress}%` }}
+                            ></div>
+                          </div>
+                          <p className="text-xs text-center mt-1 text-gray-600">
+                            Uploading: {uploadProgress}%
+                          </p>
+                        </div>
+                      )}
 
                       <button
                         type="submit"

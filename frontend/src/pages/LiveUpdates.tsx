@@ -10,7 +10,7 @@ const LiveUpdates: React.FC = () => {
   return (
     <div className="p-4 md:p-6">
       <div className="mb-10">
-        <section className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl p-10 shadow-lg text-center relative">
+        <section className="bg-gradient-to-r text-indigo-600 bg-indigo-600 text-white rounded-2xl p-10 shadow-lg text-center relative">
           <div className="absolute top-4 right-6">
             <LiveClock />
           </div>
