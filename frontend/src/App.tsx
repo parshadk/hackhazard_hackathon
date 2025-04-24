@@ -10,7 +10,6 @@ import AdminDashbord from "./admin/dashboard/AdminDashboard";
 import AdminCourses from "./admin/courses/AdminCourses";
 import AdminUsers from "./admin/users/AdminUser";
 import Courses from "./pages/Courses";
-import AdminLayout from "./admin/utils/layout"
 import CourseDescription from "./pages/CourseDescription"
 import PaymentSuccess from "./pages/PaymentSuccess"
 // Lazy-loaded pages
@@ -155,7 +154,7 @@ const App: React.FC = () => {
               </ProtectedRoute>
             }
           />
-          {/* <Route
+          <Route
             path="/wallet"
             element={
               <ProtectedRoute>
@@ -164,7 +163,7 @@ const App: React.FC = () => {
                 </Layout>
               </ProtectedRoute>
             }
-          /> */}
+          />
           <Route
             path="/profile"
             element={

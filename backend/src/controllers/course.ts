@@ -102,6 +102,11 @@ export const checkout = TryCatch(async (req: any, res: any) => {
   const options = {
     amount: Number(course.price * 100),
     currency: "INR",
+    notes: {
+      userId: req.user._id.toString(), // This is crucial for filtering
+      courseId: course.id,
+      courseName: course.title
+    }
   };
   console.log(options);
   try {
