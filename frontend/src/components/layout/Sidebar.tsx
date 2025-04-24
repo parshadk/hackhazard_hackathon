@@ -36,6 +36,12 @@ export default function Sidebar({ className = "" }: SidebarProps) {
     setActivePath(path)
   }
 
+  const getLevel = (xp: number) => Math.floor(xp / 100) + 1
+   const getXPProgress = (xp: number) => xp % 100
+ 
+   const level = user ? getLevel(user.xp) : 1
+   const xpProgress = user ? getXPProgress(user.xp) : 0
+
   console.log(loading, user)
 
   return (
@@ -70,8 +76,12 @@ export default function Sidebar({ className = "" }: SidebarProps) {
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div 
-                  className="bg-primary-600 h-2 rounded-full" 
-                  style={{ width: `${Math.min(100, user.xp % 100)}%` }} 
+                  className="h-2 rounded-full transition-all duration-300"
+                  style={{
+                    width: `${xpProgress}%`,
+                    background: "linear-gradient(to right, #7F00FF, #E100FF)",
+                    boxShadow: "0 0 6px rgba(127, 0, 255, 0.5)",
+                  }}
                 />
               </div>
             </div>
@@ -137,4 +147,3 @@ export default function Sidebar({ className = "" }: SidebarProps) {
     </div>
   )
 }
-   
