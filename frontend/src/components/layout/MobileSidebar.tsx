@@ -2,7 +2,7 @@
 import { X } from "lucide-react"
 import { NavLink } from "react-router-dom"
 import { useAuth } from "../../context/AuthContext"
-import { Home, BookOpen, Wallet, User, LineChart, LogOut, Award } from "lucide-react"
+import { Home, BookOpen, Wallet, User, LineChart, LogOut, Award ,Bot} from "lucide-react"
 
 interface MobileSidebarProps {
   isOpen: boolean
@@ -16,7 +16,8 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
     { name: "Dashboard", path: "/dashboard", icon: Home },
     { name: "Courses", path: "/lessons", icon: BookOpen },
     // { name: "Wallet", path: "/wallet", icon: Wallet },
-    { name: "Quiz", path: "/quiz", icon: BookOpen },
+    { name: "AI Quiz", path: "/quiz", icon: BookOpen },
+    { name: "Explain with AI", path: "/explain", icon: Bot },
     { name: "Live Updates", path: "/live-updates", icon: LineChart },
     { name: "Profile", path: "/profile", icon: User },
     { name: "Transaction History", path: "/wallet", icon: Wallet },
