@@ -22,7 +22,7 @@ const Dashboard = lazy(() => import("./pages/Dashboard"))
 //const Courses = lazy(() => import("./pages/Courses"))
 const LessonDetail = lazy(() => import("./pages/CourseDescription"))
 const Quiz = lazy(() => import("./pages/Quiz"))
-const FinanceChat = lazy(() => import("./pages/FinanceChat"))
+const FinanceChat = lazy(() => import("./pages/FinanceChat")) 
 const Wallet = lazy(() => import("./pages/Wallet"))
 const Profile = lazy(() => import("./pages/Profile"))
 const LiveUpdates = lazy(() => import("./pages/LiveUpdates"))
@@ -165,8 +165,7 @@ const App: React.FC = () => {
               </ProtectedRoute>
             }
           />
-          {/* <Route
-
+          <Route
             path="/wallet"
             element={
               <ProtectedRoute>
