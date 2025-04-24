@@ -8,7 +8,8 @@ import {
   LineChart,
   LogOut,
   Award,
-  Shield
+  Shield,
+  Bot
 } from "lucide-react"
 import { useState } from "react"
 
@@ -23,7 +24,8 @@ export default function Sidebar({ className = "" }: SidebarProps) {
   const navItems = [
     { name: "Dashboard", path: "/dashboard", icon: Home },
     { name: "Courses", path: "/lessons", icon: BookOpen },
-    { name: "Quiz", path: "/quiz", icon: BookOpen },
+    { name: "AI Quiz", path: "/quiz", icon: BookOpen },
+    { name: "Explain with AI", path: "/explain", icon: Bot },
     { name: "Live Updates", path: "/live-updates", icon: LineChart },
     { name: "Profile", path: "/profile", icon: User },
     { name: "Transaction History", path: "/wallet", icon: Wallet },
@@ -44,7 +46,7 @@ export default function Sidebar({ className = "" }: SidebarProps) {
       {/* Logo and app name */}
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center space-x-3">
-          <Award className="h-8 w-8 text-primary-600" />
+        <img src="/white.png" alt="EduFinance Logo" className="h-8 w-8" />
           <h1 className="text-xl font-bold text-gray-800">EduFinance</h1>
         </div>
       </div>
