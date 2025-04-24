@@ -7,7 +7,8 @@ import {
   resetPassword,
   verifyUser,
   changePassword,
-  updateProfile
+  updateProfile,
+  getPaymentHistory
 } from "../controllers/user";
 import { isAuth } from "../middleware/isAuth";
 import { addProgress, getYourProgress } from "../controllers/course";
@@ -24,5 +25,6 @@ router.post("/user/progress", isAuth, addProgress);
 router.get("/user/progress", isAuth, getYourProgress);
 router.post("/user/change-password", isAuth, changePassword);
 router.put("/user/profile", isAuth, updateProfile);
+router.get('/user/payment-history', isAuth, getPaymentHistory);
 
 export default router;

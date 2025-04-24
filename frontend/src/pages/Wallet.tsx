@@ -1,182 +1,248 @@
-import { useEffect, useState } from "react"
-import { useAuth } from "../context/AuthContext"
-import { Coins, TrendingUp, Award } from "lucide-react"
-import LoadingSpinner from "../components/ui/LoadingSpinner"
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { useAuth } from "../context/AuthContext";
+import { API_URL } from "../utils/api";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
-interface Transaction {
-  id: string
-  type: "earn" | "spend"
-  amount: number
-  description: string
-  date: string
+interface Payment {
+  id: string;
+  amount: number;
+  currency: string;
+  status: "paid" | "failed" | "pending" | "refunded";
+  date: string;
+  courseName?: string;
+  receipt?: string;
 }
 
-export default function Wallet() {
-  const { user } = useAuth()
-  const [loading, setLoading] = useState(true)
-  const [coins, setCoins] = useState(0)
-  const [transactions, setTransactions] = useState<Transaction[]>([])
+interface ApiResponse {
+  success: boolean;
+  payments: Payment[];
+  message?: string;
+}
+
+const Wallet = () => {
+  const { isAuthenticated } = useAuth();
+  const [payments, setPayments] = useState<Payment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    // In a real app, you would fetch from your API
-    // For demo, we'll create mock data
-    const mockCoins = 250
-    const mockTransactions: Transaction[] = [
-      {
-        id: "1",
-        type: "earn",
-        amount: 50,
-        description: "Completed 'Introduction to Finance' quiz",
-        date: "2023-06-15T10:30:00Z",
-      },
-      {
-        id: "2",
-        type: "earn",
-        amount: 25,
-        description: "Completed 'Budgeting Basics' lesson",
-        date: "2023-06-14T14:45:00Z",
-      },
-      {
-        id: "3",
-        type: "earn",
-        amount: 100,
-        description: "Completed 'Investment Fundamentals' course",
-        date: "2023-06-10T09:15:00Z",
-      },
-      {
-        id: "4",
-        type: "spend",
-        amount: 75,
-        description: "Unlocked 'Advanced Stock Trading' course",
-        date: "2023-06-05T16:20:00Z",
-      },
-      {
-        id: "5",
-        type: "earn",
-        amount: 150,
-        description: "Completed all quizzes with 90%+ score",
-        date: "2023-06-01T11:10:00Z",
-      },
-    ]
+    console.log("Fetching payment history...");
+    const fetchPaymentHistory = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token || !isAuthenticated) {
+          throw new Error("Please login to view payment history");
+        }
 
-    setCoins(mockCoins)
-    setTransactions(mockTransactions)
-    setLoading(false)
-  }, [])
+        const response = await axios.get<ApiResponse>(
+          `${API_URL}/user/payment-history`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
 
-  if (loading) {
-    return <LoadingSpinner />
-  }
+        if (response.data.success && response.data.payments) {
+          setPayments(response.data.payments);
+        } else {
+          throw new Error(response.data.message || "Failed to fetch payments");
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Payment history unavailable");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-indigo-600">My Wallet</h1>
+    fetchPaymentHistory();
+  }, [isAuthenticated]);
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Coins card */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
-              <Coins className="h-6 w-6 text-indigo-600" />
-            </div>
-            <div>
-              <div className="text-sm text-gray-500">Total Coins</div>
-              <div className="text-3xl font-bold">{coins}</div>
-            </div>
-          </div>
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
+  const getStatusBadge = (status: string) => {
+    const statusClasses = {
+      paid: "bg-green-100 text-green-800",
+      failed: "bg-red-100 text-red-800",
+      pending: "bg-yellow-100 text-yellow-800",
+      refunded: "bg-blue-100 text-blue-800",
+    };
+    return (
+      <span className={`px-2 py-1 rounded-full text-xs ${statusClasses[status as keyof typeof statusClasses] || "bg-gray-100"}`}>
+        {status}
+      </span>
+    );
+  };
+
+  const generateReceipt = async (payment: Payment) => {
+    const receiptId = `receipt-${payment.id}`;
+    const element = document.createElement("div");
+  
+    element.innerHTML = `
+      <div style="font-family: 'Inter', sans-serif; padding: 24px; background-color: white; border-radius: 12px; width: 100%; max-width: 500px; margin: auto; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
+        <div style="text-align: center; margin-bottom: 24px;">
+          <h2 style="color: #4B0082; font-size: 24px; font-weight: 700; margin-bottom: 8px;">EduFinance</h2>
+          <div style="height: 3px; width: 60px; background: #4B0082; margin: 0 auto 12px;"></div>
+          <h3 style="color: #4B0082; font-size: 18px; font-weight: 600;">Payment Receipt</h3>
         </div>
-
-        {/* XP card */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
-              <TrendingUp className="h-6 w-6 text-indigo-600" />
-            </div>
-            <div>
-              <div className="text-sm text-gray-500">Total XP</div>
-              <div className="text-3xl font-bold">{user?.xp || 0}</div>
-            </div>
+        
+        <div style="margin-bottom: 24px; border-bottom: 1px solid #f3f4f6; padding-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+            <span style="font-size: 14px; color: #6b7280; font-weight: 500;">Date:</span>
+            <span style="font-size: 14px; color: #111827; font-weight: 500;">${formatDate(payment.date)}</span>
           </div>
-        </div>
-
-        {/* Level card */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
-              <Award className="h-6 w-6 text-indigo-600" />
-            </div>
-            <div>
-              <div className="text-sm text-gray-500">Current Level</div>
-              <div className="text-3xl font-bold">{user?.level || "Beginner"}</div>
-            </div>
+          
+          <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+            <span style="font-size: 14px; color: #6b7280; font-weight: 500;">Course:</span>
+            <span style="font-size: 14px; color: #111827; font-weight: 500;">${payment.courseName || "N/A"}</span>
           </div>
-        </div>
-      </div>
-
-      {/* Progress to next level */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-lg font-medium mb-4 text-gray-800">Progress to Next Level</h2>
-        <div className="mb-2">
-          <div className="flex justify-between text-sm mb-1">
-            <span>{user?.level || "Beginner"}</span>
-            <span>
-              {user?.level === "Beginner" ? "Intermediate" : user?.level === "Intermediate" ? "Advanced" : "Master"}
+          
+          <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+            <span style="font-size: 14px; color: #6b7280; font-weight: 500;">Amount:</span>
+            <span style="font-size: 16px; color: #4B0082; font-weight: 600;">${payment.amount} ${payment.currency}</span>
+          </div>
+          
+          <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+            <span style="font-size: 14px; color: #6b7280; font-weight: 500;">Status:</span>
+            <span style="font-size: 14px; font-weight: 500; 
+              background: ${payment.status === 'paid' ? '#ecfdf5' : '#fef2f2'}; 
+              color: ${payment.status === 'paid' ? '#059669' : '#dc2626'};
+              padding: 2px 8px; border-radius: 12px;">
+              ${payment.status}
             </span>
           </div>
-          <div className="progress-bar">
-            <div className="progress-bar-fill" style={{ width: `${Math.min(100, (user?.xp || 0) % 100)}%` }} />
+          
+          <div style="display: flex; justify-content: space-between;">
+            <span style="font-size: 14px; color: #6b7280; font-weight: 500;">Transaction ID:</span>
+            <span style="font-size: 14px; color: #111827; font-weight: 500;">${payment.id}</span>
           </div>
         </div>
-        <div className="text-sm text-gray-500">{100 - ((user?.xp || 0) % 100)} XP needed for next level</div>
-      </div>
-
-      {/* Transaction history */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-lg font-medium text-gray-800">Transaction History</h2>
+        
+        <div style="text-align: center; padding-top: 16px; border-top: 1px solid #f3f4f6;">
+          <p style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">Thank you for investing in your financial education</p>
+          <p style="font-size: 12px; color: #9ca3af;">EduFinance - Empowering your financial journey</p>
         </div>
-        <div className="divide-y divide-gray-200">
-          {transactions.length === 0 ? (
-            <div className="p-6 text-center">
-              <Coins className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium mb-2 text-gray-800">No transactions yet</h3>
-              <p className="text-gray-500">Complete lessons and quizzes to earn coins</p>
-            </div>
-          ) : (
-            transactions.map((transaction) => (
-              <div key={transaction.id} className="p-4 hover:bg-gray-50">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        transaction.type === "earn" ? "bg-indigo-100" : "bg-red-100"
-                      }`}
-                    >
-                      {transaction.type === "earn" ? (
-                        <TrendingUp
-                          className={`h-5 w-5 ${transaction.type === "earn" ? "text-indigo-600" : "text-red-600"}`}
-                        />
-                      ) : (
-                        <Coins
-                          className={`h-5 w-5 ${transaction.type === "earn" ? "text-indigo-600" : "text-red-600"}`}
-                        />
-                      )}
-                    </div>
-                    <div>
-                      <div className="font-medium text-gray-800">{transaction.description}</div>
-                      <div className="text-sm text-gray-500">{new Date(transaction.date).toLocaleDateString()}</div>
-                    </div>
-                  </div>
-                  <div className={`font-medium ${transaction.type === "earn" ? "text-indigo-600" : "text-red-600"}`}>
-                    {transaction.type === "earn" ? "+" : "-"}
-                    {transaction.amount}
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
+      </div>
+    `;
+  
+    document.body.appendChild(element);
+  
+    const canvas = await html2canvas(element);
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a5'
+    });
+    
+    const imgProps = pdf.getImageProperties(imgData);
+    const pdfWidth = pdf.internal.pageSize.getWidth() - 20;
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+    
+    pdf.addImage(imgData, "PNG", 10, 10, pdfWidth, pdfHeight);
+    pdf.save(`${receiptId}.pdf`);
+  
+    document.body.removeChild(element);
+  };
+
+  if (loading) return (
+    <div className="container mx-auto p-4 max-w-4xl">
+      <h2 className="text-2xl font-bold mb-6">Payment History</h2>
+      <div className="space-y-4">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="bg-white p-4 rounded-lg shadow animate-pulse">
+            <div className="h-4 bg-gray-200 rounded w-1/4 mb-3"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/3 mb-3"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  if (error) return (
+    <div className="container mx-auto p-4 max-w-4xl">
+      <h2 className="text-2xl font-bold mb-6">Payment History</h2>
+      <div className="bg-red-50 border-l-4 border-red-500 p-4">
+        <div className="flex">
+          <div className="flex-shrink-0">
+            <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <div className="ml-3">
+            <p className="text-sm text-red-700">{error}</p>
+          </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+
+  return (
+    <div className="container mx-auto p-4 max-w-4xl">
+      <h2 className="text-2xl font-bold mb-6">Payment History</h2>
+      
+      {payments.length === 0 ? (
+        <div className="bg-gray-50 p-8 text-center rounded-lg border border-gray-200">
+          <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h3 className="mt-2 text-lg font-medium text-gray-900">No payments found</h3>
+          <p className="mt-1 text-gray-500">Your payment history will appear here once you make transactions.</p>
+        </div>
+      ) : (
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3 sm:px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                  <th className="px-4 py-3 sm:px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                  <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                  <th className="px-4 py-3 sm:px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-4 py-3 sm:px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Receipt</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {payments.map((payment) => (
+                  <tr key={payment.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-4 sm:px-6 whitespace-nowrap text-sm text-gray-900">
+                      {formatDate(payment.date)}
+                    </td>
+                    <td className="px-4 py-4 sm:px-6 whitespace-nowrap text-sm text-gray-900">
+                      {payment.amount.toLocaleString()} {payment.currency}
+                    </td>
+                    <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {payment.courseName || "N/A"}
+                    </td>
+                    <td className="px-4 py-4 sm:px-6 whitespace-nowrap">
+                      {getStatusBadge(payment.status)}
+                    </td>
+                    <td className="px-4 py-4 sm:px-6 whitespace-nowrap">
+                      <button
+                        onClick={() => generateReceipt(payment)}
+                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                      >
+                        <svg className="-ml-0.5 mr-1.5 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Download
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Wallet;

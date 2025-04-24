@@ -19,6 +19,7 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
     { name: "Quiz", path: "/quiz", icon: BookOpen },
     { name: "Live Updates", path: "/live-updates", icon: LineChart },
     { name: "Profile", path: "/profile", icon: User },
+    { name: "Transaction History", path: "/wallet", icon: Wallet },
   ]
 
   const handleLogout = () => {
