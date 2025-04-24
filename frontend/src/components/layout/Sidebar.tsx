@@ -23,7 +23,7 @@ export default function Sidebar({ className = "" }: SidebarProps) {
   const navItems = [
     { name: "Dashboard", path: "/dashboard", icon: Home },
     { name: "Courses", path: "/lessons", icon: BookOpen },
-    { name: "Wallet", path: "/wallet", icon: Wallet },
+    // { name: "Wallet", path: "/wallet", icon: Wallet },
     { name: "Quiz", path: "/quiz", icon: BookOpen },
     { name: "Live Updates", path: "/live-updates", icon: LineChart },
     { name: "Profile", path: "/profile", icon: User },
@@ -51,7 +51,8 @@ export default function Sidebar({ className = "" }: SidebarProps) {
         <div className="p-6 border-b border-gray-200">
           <div className="flex flex-col space-y-2">
             <div className="flex items-center space-x-3">
-              <div className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
+              <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                {/* Display first letter of name as profile picture */}
                 <span className="text-primary-600 font-medium">
                   {user.name.charAt(0).toUpperCase()}
                 </span>
@@ -76,6 +77,7 @@ export default function Sidebar({ className = "" }: SidebarProps) {
           </div>
         </div>
       )}
+
 
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-2 overflow-y-auto">

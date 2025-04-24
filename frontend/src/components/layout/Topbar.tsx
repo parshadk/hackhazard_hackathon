@@ -1,33 +1,36 @@
-
-import { Bell, Menu } from "lucide-react"
-import { useAuth } from "../../context/AuthContext"
+import { Menu } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 
 interface TopbarProps {
-  onMenuClick: () => void
+  onMenuClick: () => void;
 }
 
 export default function Topbar({ onMenuClick }: TopbarProps) {
-  const { user } = useAuth()
+  const { user } = useAuth();
 
   return (
-    <header className="bg-white border-b border-gray-200 h-16 flex items-center px-4 md:px-6">
-      <button onClick={onMenuClick} className="p-2 rounded-md text-gray-500 hover:bg-gray-100 md:hidden">
+    <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-4 sm:px-6 shadow-sm z-50">
+      {/* Mobile Menu Button */}
+      <button
+        onClick={onMenuClick}
+        className="md:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100 focus:outline-none"
+        aria-label="Open menu"
+      >
         <Menu className="h-6 w-6" />
       </button>
 
-      <div className="ml-auto flex items-center space-x-4">
-        <button className="p-2 rounded-md text-gray-500 hover:bg-gray-100 relative">
-          <Bell className="h-5 w-5" />
-          <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-        </button>
+      {/* Logo or App Name (optional) */}
+      <h1 className="text-xl font-bold text-indigo-600 hidden sm:block">EduFinance</h1>
 
-        <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center">
-            {user?.name.charAt(0).toUpperCase()}
-          </div>
-          <span className="hidden md:inline font-medium">{user?.name}</span>
+      {/* User Profile */}
+      <div className="flex items-center space-x-3">
+        <div className="w-9 h-9 rounded-full bg-blue-100 text-black flex items-center justify-center text-sm font-semibold">
+          {user?.name?.charAt(0).toUpperCase() || "U"}
         </div>
+        <span className="hidden md:inline-block font-medium text-gray-800">
+          {user?.name || "User"}
+        </span>
       </div>
     </header>
-  )
+  );
 }

@@ -45,9 +45,12 @@ const CourseStudy: React.FC<CourseStudyProps> = ({ user }) => {
         <div className="max-w-4xl mx-auto px-6 py-12">
           <div className="bg-white rounded-2xl shadow-lg p-8 flex flex-col md:flex-row gap-6 items-center">
             <img
-              src={`${server}/${course.image}`}
+              src={course.image?.includes("res.cloudinary.com") ? course.image : `${server}/${course.image}`}
               alt={course.title}
               className="w-full md:w-1/2 h-72 object-cover rounded-xl shadow-md"
+              onError={(e) => {
+                e.currentTarget.src = 'https://via.placeholder.com/300x200?text=Course+Image';
+              }}
             />
             <div className="md:w-1/2 space-y-4">
               <h2 className="text-3xl font-bold text-gray-900">{course.title}</h2>

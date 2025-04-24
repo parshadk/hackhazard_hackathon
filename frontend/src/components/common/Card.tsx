@@ -1,11 +1,18 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { server } from '../../main';
 import { useAuth } from '../../context/AuthContext';
 
 const Card = ({ course, isPurchased }) => {
-  // if (!course) return null;
-  const { isAuthenticated,user} = useAuth();
+  const { isAuthenticated, user } = useAuth();
+  
+  // Function to handle image URL - use Cloudinary URL directly or fallback
+  const getImageUrl = () => {
+    if (course.image?.includes('res.cloudinary.com')) {
+      return course.image; // Already a Cloudinary URL
+    }
+    return course.image || 'https://via.placeholder.com/300x200?text=Course+Image';
+  };
+
   return (
     <Link 
       to={`/lesson/${course._id}`} 
@@ -14,7 +21,7 @@ const Card = ({ course, isPurchased }) => {
       {/* Image with gradient overlay */}
       <div className="relative h-48 overflow-hidden">
         <img 
-          src={`${server}/${course.image}`} 
+          src={getImageUrl()} 
           alt={course.title} 
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           onError={(e) => {
@@ -22,7 +29,13 @@ const Card = ({ course, isPurchased }) => {
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+        
         {/* Display enrollment status */}
+        {isAuthenticated && user && (user as any).subscription.includes(course._id) && (
+          <div className="absolute top-4 left-4 bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-md">
+            Enrolled
+          </div>
+        )}
         
         {/* Price tag or Purchased badge */}
         {isPurchased ? (
@@ -31,7 +44,7 @@ const Card = ({ course, isPurchased }) => {
           </div>
         ) : (
           <div className="absolute top-4 right-4 bg-primary-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-md">
-            ${course.price}
+            ₹{course.price}
           </div>
         )}
       </div>
@@ -63,11 +76,6 @@ const Card = ({ course, isPurchased }) => {
             <span className="text-sm text-gray-500">{course.createdBy}</span>
           </div>
         </div>
-        {isAuthenticated && user && (user as any).subscription.includes(course._id) ? (
-          <p className="enrollment-status">Enrolled</p>
-        ) : (
-          isAuthenticated && user && <p className="enrollment-status">Not Enrolled</p>
-        )}
 
         {/* Hover effect indicator */}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">

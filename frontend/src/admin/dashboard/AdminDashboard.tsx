@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Layout from "../utils/layout";
 import axios from "axios";
 import { server } from "../../main";
-import Button from "../../components/ui/Button";
+import { Button }from "../../components/ui/Button";
 import { Card, CardContent } from "../../components/ui/Card";
 
 interface StatsType {

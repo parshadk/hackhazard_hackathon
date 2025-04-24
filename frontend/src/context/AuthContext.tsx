@@ -23,6 +23,7 @@ interface AuthContextType {
   forgotPassword: (email: string) => Promise<void>;
   resetPassword: (password: string, token: string) => Promise<void>;
   changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
+  updateProfile: (name: string) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -193,6 +194,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         forgotPassword,
         resetPassword,
         changePassword,
+        updateProfile
       }}
     >
       {children}

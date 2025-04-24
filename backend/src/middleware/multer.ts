@@ -1,17 +1,23 @@
-const multer = require('multer'); // Use require for CommonJS modules
+const multer = require('multer'); 
 import { v4 as uuid } from 'uuid';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import { v2 as cloudinary } from 'cloudinary';
 
-const storage = multer.diskStorage({
-  destination(req:any, file:any, cb:any) {
-    cb(null, 'uploads');
-  },
-  filename(req:any, file:any, cb:any) {
-    const id = uuid();
-    const extName = file.originalname.split('.').pop();
-    const fileName = `${id}.${extName}`;
-    console.log(fileName);
-    
-    cb(null, fileName);
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: async (req, file) => {
+    return {
+      folder: 'course-content', 
+      public_id: uuid(), 
+      resource_type: 'auto', 
+      format: file.originalname.split('.').pop(), 
+    };
   },
 });
 

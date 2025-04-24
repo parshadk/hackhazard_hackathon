@@ -15,8 +15,8 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
   const navItems = [
     { name: "Dashboard", path: "/dashboard", icon: Home },
     { name: "Courses", path: "/lessons", icon: BookOpen },
-    { name: "Wallet", path: "/wallet", icon: Wallet },
-    {name:"Quiz", path:"/quiz", icon: BookOpen},
+    // { name: "Wallet", path: "/wallet", icon: Wallet },
+    { name: "Quiz", path: "/quiz", icon: BookOpen },
     { name: "Live Updates", path: "/live-updates", icon: LineChart },
     { name: "Profile", path: "/profile", icon: User },
   ]
@@ -73,7 +73,7 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
               onClick={onClose}
               className={({ isActive }) =>
                 `flex items-center px-4 py-2 text-sm rounded-md transition-colors ${
-                  isActive ? "bg-primary text-white" : "text-gray-700 hover:bg-gray-100"
+                  isActive ? "bg-primary-100 text-primary-600 font-medium border-l-4 border-primary-600"  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                 }`
               }
             >
