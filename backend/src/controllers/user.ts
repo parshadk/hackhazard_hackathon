@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import sendMail, { sendForgotMail } from "../middleware/sendMail";
 import TryCatch from "../middleware/TryCatch";
 import { Request, Response, NextFunction } from "express";
+import Razorpay from 'razorpay';
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -22,6 +23,11 @@ interface JwtPayload {
   email?: string;
   _id?: string;
 }
+
+const razorpay = new Razorpay({
+  key_id: process.env.Razorpay_Key || '',
+  key_secret: process.env.Razorpay_Secret || ''
+});
 
 const getEnvVar = (key: string): string => {
   const value = process.env[key];
@@ -251,3 +257,52 @@ export const updateProfile = async (
     next(error);
   }
 };
+
+export const getPaymentHistory = TryCatch(async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    res.status(401).json({ success: false, message: "Unauthorized" });
+    return next();
+  }
+
+  try {
+    // Get query parameters for pagination
+    const { count = '100', skip = '0' } = req.query;
+    
+    // Fetch payments from Razorpay
+    const payments = await razorpay.orders.all({
+      count: parseInt(count as string),
+      skip: parseInt(skip as string)
+    });
+
+    // Filter payments for current user
+    const userPayments = payments.items.filter((payment: any) => {
+      return payment.notes?.userId === req.user?._id.toString();
+    });
+
+    // Format the response
+    const formattedPayments = userPayments.map((payment: any) => ({
+      id: payment.id,
+      amount: payment.amount / 100, // Convert from paise to rupees
+      currency: payment.currency,
+      status: payment.status,
+      date: new Date(payment.created_at * 1000), // Convert timestamp to Date
+      courseId: payment.notes?.courseId,
+      courseName: payment.notes?.courseName,
+      receipt: payment.receipt
+    }));
+
+    res.status(200).json({
+      success: true,
+      payments: formattedPayments,
+      total: userPayments.length
+    });
+  } catch (error: any) {
+    console.error('Error fetching payment history:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch payment history',
+      error: error.message
+    });
+  }
+  return next();
+});

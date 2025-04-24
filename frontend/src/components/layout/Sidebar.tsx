@@ -23,10 +23,10 @@ export default function Sidebar({ className = "" }: SidebarProps) {
   const navItems = [
     { name: "Dashboard", path: "/dashboard", icon: Home },
     { name: "Courses", path: "/lessons", icon: BookOpen },
-    // { name: "Wallet", path: "/wallet", icon: Wallet },
     { name: "Quiz", path: "/quiz", icon: BookOpen },
     { name: "Live Updates", path: "/live-updates", icon: LineChart },
     { name: "Profile", path: "/profile", icon: User },
+    { name: "Transaction History", path: "/wallet", icon: Wallet },
   ]
 
   const handleNavClick = (path: string) => {

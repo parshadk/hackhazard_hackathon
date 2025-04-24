@@ -3,6 +3,7 @@ import axios from "axios";
 import { API_URL } from "../utils/api";
 
 interface User {
+  _id: string;
   name: string;
   email: string;
   xp: number;
@@ -24,6 +25,7 @@ interface AuthContextType {
   resetPassword: (password: string, token: string) => Promise<void>;
   changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
   updateProfile: (name: string) => Promise<void>
+  token: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,6 +35,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [btnLoading, setBtnLoading] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
     fetchUser(); // initial check on app load
@@ -68,6 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const { data } = await axios.post<{ token: string; user: User }>(`${API_URL}/user/login`, { email, password });
       localStorage.setItem("token", data.token);
+      setToken(data.token); // Add this
       axios.defaults.headers.common["token"] = data.token;
       setUser(data.user);
       setIsAuthenticated(true);
@@ -109,6 +113,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = () => {
     localStorage.removeItem("token");
+    setToken(null); // Add this
     delete axios.defaults.headers.common["token"];
     setUser(null);
     setIsAuthenticated(false);
@@ -153,8 +158,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
- 
-
   const updateProfile = async (name: string) => {
     try {
       const token = localStorage.getItem("token")
@@ -186,6 +189,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         isAuthenticated,
         loading,
         btnLoading,
+        token,
         login,
         register,
         verifyOTP,
