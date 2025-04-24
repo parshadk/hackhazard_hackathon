@@ -63,6 +63,23 @@ export default function Dashboard() {
     return <LoadingSpinner />
   }
 
+  const getThumbnailUrl = (thumbnail?: string) => {
+    if (!thumbnail) return "https://via.placeholder.com/300x200?text=Course+Image"
+    
+    // If it's already a full URL (Cloudinary or other)
+    if (thumbnail.startsWith('http')) {
+      return thumbnail
+    }
+    
+    // If it's a Cloudinary public ID without URL
+    if (thumbnail.includes('/') && !thumbnail.includes('res.cloudinary.com')) {
+      return `https://res.cloudinary.com/YOUR_CLOUD_NAME/image/upload/${thumbnail}`
+    }
+    
+    // Default case - assume it's a local file path
+    return `${API_URL}/${thumbnail}`
+  }
+
   return (
     <div className="space-y-8">
       {/* Welcome */}
@@ -96,7 +113,6 @@ export default function Dashboard() {
 
         {myCourses.length === 0 ? (
           <div className="bg-white rounded-xl shadow p-6 text-center">
-            <BookOpen className="h-12 w-12 mx-auto text-gray-400 mb-4" />
             <h3 className="text-lg font-medium mb-2 text-gray-700">No courses yet</h3>
             <p className="text-gray-500 mb-4">Enroll in a course to start your financial education journey</p>
             <Link
@@ -115,17 +131,14 @@ export default function Dashboard() {
                 className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden"
               >
                 <div className="h-40 bg-gray-200 relative">
-                  {course.thumbnail ? (
-                    <img
-                      src={`${API_URL}/${course.thumbnail}`}
-                      alt={course.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-indigo-100">
-                      <BookOpen className="h-12 w-12 text-indigo-600" />
-                    </div>
-                  )}
+<img
+                    src={course.image?.includes("res.cloudinary.com") ? course.image : `${server}/${course.image}`}
+                    alt={course.title}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://via.placeholder.com/300x200?text=Course+Image';
+                    }}
+                  />
                   <span className="absolute top-2 right-2 bg-white px-2 py-1 rounded text-xs font-medium text-indigo-600">
                     {course.level}
                   </span>
@@ -174,17 +187,14 @@ export default function Dashboard() {
                   className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden"
                 >
                   <div className="h-40 bg-gray-200 relative">
-                    {course.thumbnail ? (
-                      <img
-                        src={`${API_URL}/${course.thumbnail}`}
-                        alt={course.title}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-indigo-100">
-                        <BookOpen className="h-12 w-12 text-indigo-600" />
-                      </div>
-                    )}
+<img
+                    src={course.image?.includes("res.cloudinary.com") ? course.image : `${server}/${course.image}`}
+                    alt={course.title}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://via.placeholder.com/300x200?text=Course+Image';
+                    }}
+                  />
                     <span className="absolute top-2 right-2 bg-white px-2 py-1 rounded text-xs font-medium text-indigo-600">
                       {course.level}
                     </span>

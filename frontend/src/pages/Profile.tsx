@@ -1,10 +1,10 @@
 import { useState } from "react"
 import { useAuth } from "../context/AuthContext"
-import { User, Mail, Key, Award, BookOpen, Coins } from "lucide-react"
+import { User, Mail, Key, Award, BookOpen } from "lucide-react"
 import toast from "react-hot-toast"
 
 export default function Profile() {
-  const { user, logout, changePassword, updateProfile } = useAuth() // Add updateProfile here
+  const { user, logout, changePassword, updateProfile } = useAuth()
   const [name, setName] = useState(user?.name || "")
   const [email, setEmail] = useState(user?.email || "")
   const [currentPassword, setCurrentPassword] = useState("")
@@ -23,15 +23,12 @@ export default function Profile() {
     setLoading(true)
 
     try {
-      await updateProfile(name) // Call updateProfile instead of changePassword
+      await updateProfile(name)
       toast.success("Profile updated successfully")
-      setName(name) // Update local state if needed
+      setName(name)
     } catch (error) {
       console.error("Failed to update profile", error)
-      toast.error(
-
-        "Failed to update profile"
-      )
+      toast.error("Failed to update profile")
     } finally {
       setLoading(false)
     }
@@ -78,8 +75,8 @@ export default function Profile() {
       <h1 className="text-2xl font-bold">My Profile</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Profile info card */}
         <div className="md:col-span-2">
+          {/* Profile Info */}
           <div className="bg-white rounded-lg shadow overflow-hidden">
             <div className="p-6 border-b border-gray-200">
               <h2 className="text-lg font-medium">Profile Information</h2>
@@ -133,7 +130,7 @@ export default function Profile() {
             </form>
           </div>
 
-          {/* Change password card */}
+          {/* Change Password */}
           <div className="bg-white rounded-lg shadow overflow-hidden mt-6">
             <div className="p-6 border-b border-gray-200">
               <h2 className="text-lg font-medium">Change Password</h2>
@@ -203,9 +200,9 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Stats sidebar */}
+        {/* Sidebar */}
         <div className="space-y-6">
-          {/* User stats card */}
+          {/* Stats */}
           <div className="bg-white rounded-lg shadow overflow-hidden">
             <div className="p-6 border-b border-gray-200">
               <h2 className="text-lg font-medium">Your Stats</h2>
@@ -229,15 +226,6 @@ export default function Profile() {
                   <div className="font-medium">{user?.xp || 0}</div>
                 </div>
               </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
-                  <Coins className="h-5 w-5 text-indigo-600" />
-                </div>
-                <div>
-                  <div className="text-sm text-gray-500">Coins</div>
-                  <div className="font-medium">250</div>
-                </div>
-              </div>
 
               <div className="pt-4 border-t border-gray-200">
                 <div className="mb-2">
@@ -251,7 +239,7 @@ export default function Profile() {
             </div>
           </div>
 
-          {/* Account actions */}
+          {/* Account Actions */}
           <div className="bg-white rounded-lg shadow overflow-hidden">
             <div className="p-6 border-b border-gray-200">
               <h2 className="text-lg font-medium">Account Actions</h2>
