@@ -12,6 +12,7 @@ import {
   Bot
 } from "lucide-react"
 import { useState } from "react"
+import { ModeToggle } from "../common/mode-toggle"
 
 interface SidebarProps {
   className?: string
@@ -122,7 +123,7 @@ export default function Sidebar({ className = "" }: SidebarProps) {
           </NavLink>
         )}
       </nav>
-
+      
       {/* Logout button */}
       <div className="p-4 border-t border-gray-200">
         <button
