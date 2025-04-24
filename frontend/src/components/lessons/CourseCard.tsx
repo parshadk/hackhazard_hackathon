@@ -55,7 +55,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
       {isAuth && user && user.subscription.includes(course._id) ? (
         <p className="enrollment-status">Enrolled</p>
       ) : (
-        isAuth && user && <p className="enrollment-status">Not Enrolled</p>
+        isAuth && user && <p className="enrollment-status"> Enrolled</p>
       )}
 
       {isAuth ? (

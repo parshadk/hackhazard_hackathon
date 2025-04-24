@@ -1,14 +1,33 @@
-import TryCatch from "../middleware/TryCatch";
+import  TryCatch  from "../middleware/TryCatch";
 import { Courses } from "../models/Courses";
 import { Lecture } from "../models/Lecture";
-import { rm } from "fs";
-import { promisify } from "util";
-import fs from "fs";
 import { User } from "../models/User";
+import { v2 as cloudinary } from 'cloudinary';
+
+// Cloudinary configuration (should ideally be in a separate config file)
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// Helper function to extract public ID from Cloudinary URL
+const extractPublicId = (url: string | undefined): string | null => {
+  if (!url) return null;
+  
+  try {
+    // Handle different Cloudinary URL formats
+    const parts = url.split('/');
+    const withExtension = parts.pop() || '';
+    return withExtension.split('.')[0];
+  } catch (error) {
+    console.error('Error extracting public ID:', error);
+    return null;
+  }
+};
+
 export const createCourse = TryCatch(async (req: any, res: any) => {
   const { title, description, category, createdBy, duration, price } = req.body;
-  //console.log(req.body,"sldfhs");
-  
   const image = req.file;
 
   await Courses.create({
@@ -16,7 +35,7 @@ export const createCourse = TryCatch(async (req: any, res: any) => {
     description,
     category,
     createdBy,
-    image: image?.path,
+    image: image?.path, // Cloudinary URL
     duration,
     price,
   });
@@ -29,19 +48,19 @@ export const createCourse = TryCatch(async (req: any, res: any) => {
 export const addLectures = TryCatch(async (req: any, res: any) => {
   const course = await Courses.findById(req.params.id);
 
-  if (!course)
+  if (!course) {
     return res.status(404).json({
       message: "No Course with this id",
     });
+  }
 
   const { title, description } = req.body;
-
   const file = req.file;
 
   const lecture = await Lecture.create({
     title,
     description,
-    video: file?.path,
+    video: file?.path, // Cloudinary URL
     course: course._id,
   });
 
@@ -54,52 +73,62 @@ export const addLectures = TryCatch(async (req: any, res: any) => {
 export const deleteLecture = TryCatch(async (req: any, res: any) => {
   const lecture = await Lecture.findById(req.params.id);
 
-  if (!lecture) return res.status(404).json({ message: "Lecture not found" });
-rm(lecture.video, () => { console.log("Video deleted"); });
+  if (!lecture) {
+    return res.status(404).json({ message: "Lecture not found" });
+  }
 
-
+  // Delete from Cloudinary
+  if (lecture.video) {
+    const publicId = extractPublicId(lecture.video);
+    if (publicId) {
+      await cloudinary.uploader.destroy(publicId, {
+        resource_type: 'video'
+      });
+    }
+  }
 
   await lecture.deleteOne();
 
   res.json({ message: "Lecture Deleted" });
 });
 
-const unlinkAsync = promisify(fs.unlink);
-
 export const deleteCourse = TryCatch(async (req: any, res: any) => {
   const course = await Courses.findById(req.params.id);
 
-  
-
   if (!course) {
     return res.status(404).json({ message: "Course not found" });
   }
-  
+
+  // Delete all lectures and their videos
   const lectures = await Lecture.find({ course: course._id });
   
-
   await Promise.all(
-    lectures.map(async (lecture:any) => {
-      await unlinkAsync(lecture.video);
-      console.log("video deleted");
+    lectures.map(async (lecture: any) => {
+      if (lecture.video) {
+        const publicId = extractPublicId(lecture.video);
+        if (publicId) {
+          await cloudinary.uploader.destroy(publicId, {
+            resource_type: 'video'
+          });
+        }
+      }
     })
   );
 
- 
 
-  if (!course) {
-    return res.status(404).json({ message: "Course not found" });
+  if (course.image) {
+    const publicId = extractPublicId(course.image);
+    if (publicId) {
+      await cloudinary.uploader.destroy(publicId);
+    }
   }
-  
-  rm(course.image, () => {
-    console.log("image deleted");
-  });
-  
 
-  await Lecture.find({ course: req.params.id }).deleteMany();
+  
+  await Lecture.deleteMany({ course: req.params.id });
 
   await course.deleteOne();
  
+
   await User.updateMany({}, { $pull: { subscription: req.params.id } });
 
   res.json({
@@ -132,32 +161,31 @@ export const getAllUser = TryCatch(async (req: any, res: any) => {
 });
 
 export const updateRole = TryCatch(async (req: any, res: any) => {
-  if (req.user.mainrole !== "superadmin")
+  if (req.user.mainrole !== "superadmin") {
     return res.status(403).json({
       message: "This endpoint is assign to superadmin",
     });
-    const user = await User.findById(req.params.id);
+  }
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    
-    if (user.role === "user") {
-      user.role = "admin";
-      await user.save();
-    
-      return res.status(200).json({
-        message: "Role updated to admin",
-      });
-    }
-    
-    if (user.role === "admin") {
-      user.role = "user";
-      await user.save();
-    
-      return res.status(200).json({
-        message: "Role updated",
-      });
-    }
-    
+  const user = await User.findById(req.params.id);
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+  
+  if (user.role === "user") {
+    user.role = "admin";
+    await user.save();
+    return res.status(200).json({
+      message: "Role updated to admin",
+    });
+  }
+  
+  if (user.role === "admin") {
+    user.role = "user";
+    await user.save();
+    return res.status(200).json({
+      message: "Role updated to user",
+    });
+  }
 });
