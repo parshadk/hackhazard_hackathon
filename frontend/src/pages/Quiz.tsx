@@ -266,12 +266,9 @@ export default function Quiz() {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="max-w-2xl mx-auto px-4"
+      className="w-full mx-auto px-4"
     >
       <div className="flex items-center space-x-2 mb-6">
-        <Link to={`/lesson/${id}`} className="text-gray-500 hover:text-gray-700">
-          <ChevronLeft className="h-5 w-5" />
-        </Link>
         <div>
           <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
             Unlimited Knowledge Challenge
