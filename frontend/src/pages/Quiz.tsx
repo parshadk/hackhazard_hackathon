@@ -216,20 +216,20 @@ export default function Quiz() {
                 </div>
                 <div className="text-sm text-gray-500 mt-1">Score</div>
               </div>
-              <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-100 transform hover:scale-105 transition-transform">
+              {/* <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-100 transform hover:scale-105 transition-transform">
                 <div className="flex items-center justify-center space-x-2">
                   <Award className="h-5 w-5 text-indigo-600" />
                   <div className="text-3xl font-bold text-indigo-600">+{quizResult?.xpEarned}</div>
                 </div>
                 <div className="text-sm text-gray-500 mt-1">XP Earned</div>
-              </div>
-              <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-100 transform hover:scale-105 transition-transform">
+              </div> */}
+              {/* <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-100 transform hover:scale-105 transition-transform">
                 <div className="flex items-center justify-center space-x-2">
                   <BarChart2 className="h-5 w-5 text-indigo-600" />
                   <div className="text-3xl font-bold text-indigo-600">+{quizResult?.coinsEarned}</div>
                 </div>
                 <div className="text-sm text-gray-500 mt-1">Coins Earned</div>
-              </div>
+              </div> */}
             </motion.div>
 
             <div className="mb-6">
