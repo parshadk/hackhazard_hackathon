@@ -26,7 +26,7 @@ const Login: React.FC = () => {
       await login(email, password)
       toast.success("Login successful")
       navigate("/dashboard")
-    } catch (error:any) {
+    } catch (error: any) {
       toast.error(error?.response?.data?.message || "Login failed")
     } finally {
       setLoading(false)
@@ -35,11 +35,11 @@ const Login: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-blue-200 m-4 p-8 rounded-lg shadow-lg">
+      <div className="max-w-md w-full space-y-8 bg-indigo-100 m-4 p-8 rounded-lg shadow-lg">
         {/* Logo and Title */}
         <div className="text-center">
           <div className="flex justify-center">
-            <Award className="h-12 w-12 text-indigo-600" />
+            <img src="/black.png" alt="EduFinance Logo" className="h-12 w-13" />
           </div>
           <h2 className="mt-6 text-3xl font-extrabold text-slate-900">Sign in to your account</h2>
           <p className="mt-2 text-sm text-slate-600">
@@ -51,7 +51,7 @@ const Login: React.FC = () => {
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px bg-blue-50">
+          <div className="rounded-md shadow-sm -space-y-px bg-indigo-50">
             <div>
               <input
                 id="email-address"

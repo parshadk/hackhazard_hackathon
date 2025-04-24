@@ -1,5 +1,6 @@
 import { Menu } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import { Link } from "react-router-dom";
 
 interface TopbarProps {
   onMenuClick: () => void;
@@ -19,18 +20,21 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
         <Menu className="h-6 w-6" />
       </button>
 
-      {/* Logo or App Name (optional) */}
+      
       <h1 className="text-xl font-bold text-indigo-600 hidden sm:block">EduFinance</h1>
 
-      {/* User Profile */}
-      <div className="flex items-center space-x-3">
+     
+      <Link
+        to="/profile"
+        className="flex items-center space-x-3 hover:bg-gray-50 p-2 rounded-md transition-colors"
+      >
         <div className="w-9 h-9 rounded-full bg-blue-100 text-black flex items-center justify-center text-sm font-semibold">
           {user?.name?.charAt(0).toUpperCase() || "U"}
         </div>
         <span className="hidden md:inline-block font-medium text-gray-800">
           {user?.name || "User"}
         </span>
-      </div>
+      </Link>
     </header>
   );
 }

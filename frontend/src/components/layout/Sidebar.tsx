@@ -17,7 +17,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ className = "" }: SidebarProps) {
-  const { user, logout,loading } = useAuth()
+  const { user, logout, loading } = useAuth()
   const [activePath, setActivePath] = useState("")
 
   const navItems = [
@@ -33,15 +33,14 @@ export default function Sidebar({ className = "" }: SidebarProps) {
     setActivePath(path)
   }
 
-  console.log(loading,user);
-  
+  console.log(loading, user)
 
   return (
     <div className={`w-64 bg-white border-r border-gray-200 flex flex-col h-full ${className}`}>
       {/* Logo and app name */}
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center space-x-3">
-          <Award className="h-8 w-8 text-primary-600" />
+        <img src="/white.png" alt="EduFinance Logo" className="h-8 w-8" />
           <h1 className="text-xl font-bold text-gray-800">EduFinance</h1>
         </div>
       </div>
@@ -52,7 +51,6 @@ export default function Sidebar({ className = "" }: SidebarProps) {
           <div className="flex flex-col space-y-2">
             <div className="flex items-center space-x-3">
               <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                {/* Display first letter of name as profile picture */}
                 <span className="text-primary-600 font-medium">
                   {user.name.charAt(0).toUpperCase()}
                 </span>
@@ -78,7 +76,6 @@ export default function Sidebar({ className = "" }: SidebarProps) {
         </div>
       )}
 
-
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
         {navItems.map((item) => (
@@ -87,10 +84,10 @@ export default function Sidebar({ className = "" }: SidebarProps) {
             to={item.path}
             onClick={() => handleNavClick(item.path)}
             className={({ isActive }) =>
-              `flex items-center px-4 py-3 text-sm rounded-lg transition-all ${
+              `flex items-center px-4 py-3 text-sm rounded-lg transition-all transform ${
                 isActive 
                   ? "bg-primary-100 text-primary-600 font-medium border-l-4 border-primary-600" 
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 hover:-translate-y-0.5 hover:shadow-md"
               }`
             }
           >
@@ -108,10 +105,10 @@ export default function Sidebar({ className = "" }: SidebarProps) {
             to="/admin"
             onClick={() => handleNavClick("/admin")}
             className={({ isActive }) =>
-              `flex items-center px-4 py-3 text-sm rounded-lg transition-all ${
+              `flex items-center px-4 py-3 text-sm rounded-lg transition-all transform ${
                 isActive 
                   ? "bg-primary-100 text-primary-600 font-medium border-l-4 border-primary-600" 
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 hover:-translate-y-0.5 hover:shadow-md"
               }`
             }
           >
@@ -128,7 +125,7 @@ export default function Sidebar({ className = "" }: SidebarProps) {
       <div className="p-4 border-t border-gray-200">
         <button
           onClick={logout}
-          className="flex items-center w-full px-4 py-3 text-sm text-gray-600 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-all"
+          className="flex items-center w-full px-4 py-3 text-sm text-gray-600 rounded-lg hover:bg-gray-50 hover:text-gray-900 hover:-translate-y-0.5 hover:shadow-md transition-all transform"
         >
           <LogOut className="h-5 w-5 mr-3" />
           Logout
@@ -137,3 +134,4 @@ export default function Sidebar({ className = "" }: SidebarProps) {
     </div>
   )
 }
+   

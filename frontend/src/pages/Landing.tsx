@@ -8,7 +8,7 @@ export default function Landing() {
       <header className="bg-white/90 backdrop-blur-sm shadow-sm sticky top-0 z-50 transition-all duration-300 hover:shadow-md">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-2 group">
-            <Award className="h-8 w-8 text-indigo-600 group-hover:rotate-12 transition-transform" />
+          <img src="/white.png" alt="EduFinance Logo" className="h-8 w-8" />
             <h1 className="text-xl font-bold text-indigo-700 group-hover:text-indigo-800 transition-colors">
               EduFinance
             </h1>
@@ -148,7 +148,12 @@ export default function Landing() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center space-x-2 mb-6 md:mb-0 group">
-              <Award className="h-6 w-6 text-indigo-400 group-hover:animate-spin transition-transform" />
+            <img 
+            src="/black.png" 
+            alt="EduFinance Logo" 
+            className="h-8 w-8 transition-transform group-hover:animate-spin" 
+            />
+
               <span className="text-lg font-bold text-white">EduFinance</span>
             </div>
             <div className="flex space-x-6 mb-6 md:mb-0">

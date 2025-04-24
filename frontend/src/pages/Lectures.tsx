@@ -35,9 +35,6 @@ const Lecture: React.FC<LectureProps> = ({ user }) => {
   const [description, setDescription] = useState<string>("");
   const [video, setVideo] = useState<File | null>(null);
   const [videoPrev, setVideoPrev] = useState<string | ArrayBuffer | null>("");
-  const [btnLoading, setBtnLoading] = useState<boolean>(false);
-  const [uploadProgress, setUploadProgress] = useState<number>(0);
-  const [progress, setProgress] = useState<Progress[]>([]);
 
   const params = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -97,8 +94,6 @@ const Lecture: React.FC<LectureProps> = ({ user }) => {
   };
 
   const submitHandler = async (e: React.FormEvent) => {
-    setBtnLoading(true);
-    setUploadProgress(0);
     e.preventDefault();
     const myForm = new FormData();
     myForm.append("title", title);
@@ -108,24 +103,17 @@ const Lecture: React.FC<LectureProps> = ({ user }) => {
     try {
       const { data } = await axios.post(`${server}/api/course/${params.id}`, myForm, {
         headers: { token: localStorage.getItem("token") },
-        onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / (progressEvent.total || 1));
-          setUploadProgress(percentCompleted);
-        },
       });
 
       toast.success(data.message);
-      setBtnLoading(false);
       setShow(false);
       fetchLectures();
       setTitle("");
       setDescription("");
       setVideo(null);
-      setVideoPrev("");
-      setUploadProgress(0);
+      setVideoPrev(null);
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Upload failed");
-      setBtnLoading(false);
     }
   };
 
@@ -144,24 +132,12 @@ const Lecture: React.FC<LectureProps> = ({ user }) => {
     }
   };
 
-  const addProgress = async (id: string) => {
-    try {
-      await axios.post(
-        `${server}/api/user/progress?course=${params.id}&lectureId=${id}`,
-        {},
-        { headers: { token: localStorage.getItem("token") } }
-      );
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   useEffect(() => {
     fetchLectures();
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {loading ? (
         <div className="flex items-center justify-center h-screen">
           <Loading />
@@ -171,7 +147,7 @@ const Lecture: React.FC<LectureProps> = ({ user }) => {
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Left Section - Video Player */}
             <div className="lg:flex-1">
-              <div className="bg-white rounded-xl shadow-md overflow-hidden p-4">
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden p-4">
                 {lecLoading ? (
                   <div className="flex items-center justify-center h-96">
                     <Loading />
@@ -188,7 +164,7 @@ const Lecture: React.FC<LectureProps> = ({ user }) => {
                             disablePictureInPicture
                             disableRemotePlayback
                             autoPlay
-                            onEnded={() => addProgress(lecture._id)}
+                            onEnded={() => {}}
                             className="w-full h-full object-contain"
                           />
                         </div>
@@ -199,7 +175,7 @@ const Lecture: React.FC<LectureProps> = ({ user }) => {
                       </>
                     ) : (
                       <div className="flex flex-col items-center justify-center h-96 text-center">
-                        <h1 className="text-2xl md:text-3xl font-bold text-blue-600 mb-4">Select a Lecture</h1>
+                        <h1 className="text-2xl md:text-3xl font-bold text-gray-600 mb-4">Select a Lecture</h1>
                         <p className="text-gray-500">Choose a lecture from the list to start watching</p>
                       </div>
                     )}
@@ -210,11 +186,11 @@ const Lecture: React.FC<LectureProps> = ({ user }) => {
 
             {/* Right Section - Lectures List */}
             <div className="lg:w-96 xl:w-[28rem]">
-              <div className="bg-white rounded-xl shadow-md overflow-hidden p-6">
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden p-6">
                 {user && user.role === "admin" && (
                   <div className="mb-6">
                     <button
-                      className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200"
+                      className="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors duration-200"
                       onClick={() => setShow(!show)}
                     >
                       {show ? "Close Form" : "Add New Lecture +"}
@@ -223,8 +199,8 @@ const Lecture: React.FC<LectureProps> = ({ user }) => {
                 )}
 
                 {show && (
-                  <div className="mb-8 bg-blue-50 rounded-lg p-4">
-                    <h2 className="text-xl font-bold text-blue-800 mb-4">Add New Lecture</h2>
+                  <div className="mb-8 bg-gray-50 rounded-lg p-4">
+                    <h2 className="text-xl font-bold text-gray-800 mb-4">Add New Lecture</h2>
                     <form onSubmit={submitHandler} className="space-y-4">
                       <div>
                         <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
@@ -236,7 +212,7 @@ const Lecture: React.FC<LectureProps> = ({ user }) => {
                           value={title}
                           onChange={(e) => setTitle(e.target.value)}
                           required
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         />
                       </div>
 
@@ -250,7 +226,7 @@ const Lecture: React.FC<LectureProps> = ({ user }) => {
                           value={description}
                           onChange={(e) => setDescription(e.target.value)}
                           required
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         />
                       </div>
 
@@ -263,7 +239,7 @@ const Lecture: React.FC<LectureProps> = ({ user }) => {
                           accept="video/*"
                           onChange={changeVideoHandler}
                           required
-                          className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                          className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gray-50 file:text-indigo-700 hover:file:bg-indigo-100"
                         />
                       </div>
 
@@ -277,26 +253,12 @@ const Lecture: React.FC<LectureProps> = ({ user }) => {
                         </div>
                       )}
 
-                      {btnLoading && (
-                        <div className="w-full mb-2">
-                          <div className="w-full bg-gray-200 rounded-full h-2.5">
-                            <div
-                              className="bg-blue-600 h-2.5 rounded-full"
-                              style={{ width: `${uploadProgress}%` }}
-                            ></div>
-                          </div>
-                          <p className="text-xs text-center mt-1 text-gray-600">
-                            Uploading: {uploadProgress}%
-                          </p>
-                        </div>
-                      )}
-
                       <button
                         type="submit"
-                        disabled={btnLoading}
-                        className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md disabled:opacity-70 disabled:cursor-not-allowed transition-colors duration-200"
+                        disabled={false}
+                        className="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md disabled:opacity-70 disabled:cursor-not-allowed transition-colors duration-200"
                       >
-                        {btnLoading ? "Uploading..." : "Add Lecture"}
+                        Add Lecture
                       </button>
                     </form>
                   </div>
@@ -311,12 +273,12 @@ const Lecture: React.FC<LectureProps> = ({ user }) => {
                         onClick={() => fetchLecture(lec._id)}
                         className={`p-3 rounded-lg cursor-pointer transition-colors duration-200 ${
                           lecture?._id === lec._id
-                            ? "bg-blue-100 border border-blue-200"
+                            ? "bg-gray-100 border border-gray-200"
                             : "hover:bg-gray-100 border border-gray-200"
                         }`}
                       >
                         <div className="flex items-start">
-                          <div className="flex-shrink-0 w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mr-3">
+                          <div className="flex-shrink-0 w-10 h-10 bg-gray-100 text-indigo-600 rounded-full flex items-center justify-center mr-3">
                             {index + 1}
                           </div>
                           <div className="flex-1">
@@ -346,7 +308,7 @@ const Lecture: React.FC<LectureProps> = ({ user }) => {
                     {user?.role === "admin" && (
                       <button
                         onClick={() => setShow(true)}
-                        className="mt-2 px-4 py-2 text-sm text-blue-600 hover:text-blue-800 font-medium"
+                        className="mt-2 px-4 py-2 text-sm text-indigo-600 hover:text-indigo-800 font-medium"
                       >
                         Add your first lecture
                       </button>
