@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate, Link } from "react-router-dom"
-import { ChevronLeft, CheckCircle, AlertCircle } from "lucide-react"
+import { ChevronLeft, CheckCircle, AlertCircle, Sparkles, Trophy, Award, BarChart2 } from "lucide-react"
 import LoadingSpinner from "../components/ui/LoadingSpinner"
 import toast from "react-hot-toast"
 import { API_URL } from "../utils/api"
 import axios from "axios"
-import { set } from "date-fns"
+import { motion, AnimatePresence } from "framer-motion"
+
 interface Question {
   id: string
   text: string
@@ -33,6 +34,7 @@ export default function Quiz() {
   const [showResult, setShowResult] = useState(false)
   const [quizResult, setQuizResult] = useState<QuizResult | null>(null)
   const [quizSubmitting, setQuizSubmitting] = useState(false)
+  const [isOptionSelected, setIsOptionSelected] = useState(false)
 
   useEffect(() => {
     const fetchQuiz = async () => {
@@ -40,7 +42,6 @@ export default function Quiz() {
         const res = await axios.post(`${API_URL}/quiz`)
         const data = res.data as {quiz: Question[]}
       
-
         setQuestions(data.quiz)
         setAnswers(new Array(data.quiz.length).fill(null))
       } catch (error) {
@@ -55,22 +56,12 @@ export default function Quiz() {
           { id: "7", text: "What is liquidity?", options: ["Ease of converting to cash", "Investment return", "Credit availability", "Debt level"], correctAnswer: 0 },
           { id: "8", text: "What is a budget?", options: ["Track income/expenses", "Only save money", "Borrow funds", "Calculate taxes"], correctAnswer: 0 },
           { id: "9", text: "What is an ETF?", options: ["Exchange-Traded Fund", "Electronic Transfer Form", "Equity Trade Fee", "Earnings Tax Fund"], correctAnswer: 0 },
-          { id: "10", text: "What is the time value of money?", options: ["Money’s present vs future value", "Fixed interest rate", "Loan term", "Tax benefit"], correctAnswer: 0 },
-          { id: "11", text: "What is a credit score?", options: ["Numerical creditworthiness", "Loan amount", "Interest rate", "Tax bracket"], correctAnswer: 0 },
-          { id: "12", text: "What is a debit card?", options: ["Borrows money", "Linked to checking", "Pays interest", "Credit line"], correctAnswer: 1 },
-          { id: "13", text: "What is inflation?", options: ["Price decrease", "Price increase", "No impact", "Only for investors"], correctAnswer: 1 },
-          { id: "14", text: "What is a Roth IRA?", options: ["Tax-free withdrawals", "Tax-deferred withdrawals", "Taxed withdrawals", "Self-employed only"], correctAnswer: 0 },
-          { id: "15", text: "What is penalty APR?", options: ["Reduced rate", "Higher rate after default", "Fixed rate", "Introductory rate"], correctAnswer: 1 },
-          { id: "16", text: "What is principal on a loan?", options: ["Total interest paid", "Original amount borrowed", "Monthly fee", "Credit limit"], correctAnswer: 1 },
-          { id: "17", text: "What is default risk?", options: ["Price volatility", "Borrower failure to pay", "Liquidity issue", "Tax penalty"], correctAnswer: 1 },
-          { id: "18", text: "What is a dividend?", options: ["Company profit share", "Loan interest", "Tax fee", "Stock split"], correctAnswer: 0 },
-          { id: "19", text: "What is an index fund?", options: ["Actively managed fund", "Tracks a market index", "High‑risk hedge fund", "Government bond"], correctAnswer: 1 },
-          { id: "20", text: "What is credit utilization?", options: ["Debt-to-income ratio", "Used credit vs limit", "Annual fee", "Credit score"], correctAnswer: 1 },
+          { id: "10", text: "What is the time value of money?", options: ["Money's present vs future value", "Fixed interest rate", "Loan term", "Tax benefit"], correctAnswer: 0 },
         ]
         const shuffled = mockQuestions
-        .map(q => ({ q, sort: Math.random() }))
-        .sort((a, b) => a.sort - b.sort)
-        .map(({ q }) => q)
+          .map(q => ({ q, sort: Math.random() }))
+          .sort((a, b) => a.sort - b.sort)
+          .map(({ q }) => q)
         const randomFive = shuffled.slice(0, 5)
         setQuestions(randomFive)
         setAnswers(new Array(randomFive.length).fill(null))
@@ -87,12 +78,14 @@ export default function Quiz() {
     const newAnswers = [...answers]
     newAnswers[currentQuestion] = optionIndex
     setAnswers(newAnswers)
+    setIsOptionSelected(true)
   }
 
   const handleNext = () => {
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1)
       setSelectedOption(answers[currentQuestion + 1])
+      setIsOptionSelected(answers[currentQuestion + 1] !== null)
     }
   }
 
@@ -100,6 +93,7 @@ export default function Quiz() {
     if (currentQuestion > 0) {
       setCurrentQuestion(currentQuestion - 1)
       setSelectedOption(answers[currentQuestion - 1])
+      setIsOptionSelected(answers[currentQuestion - 1] !== null)
     }
   }
 
@@ -157,7 +151,12 @@ export default function Quiz() {
 
   if (showResult) {
     return (
-      <div className="max-w-2xl mx-auto">
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-2xl mx-auto"
+      >
         <div className="flex items-center space-x-2 mb-6">
           <Link to={`/lesson/${id}`} className="text-gray-500 hover:text-gray-700">
             <ChevronLeft className="h-5 w-5" />
@@ -165,12 +164,32 @@ export default function Quiz() {
           <h1 className="text-2xl font-bold">Quiz Results</h1>
         </div>
 
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        <motion.div 
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white rounded-lg shadow-lg overflow-hidden border border-indigo-100"
+        >
           <div className="p-6 text-center">
             {quizResult?.score >= 70 ? (
-              <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
+              <motion.div
+                initial={{ scale: 0.8 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <div className="relative inline-block">
+                  <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
+                  <Sparkles className="absolute -top-2 -right-2 h-6 w-6 text-yellow-400 animate-pulse" />
+                </div>
+              </motion.div>
             ) : (
-              <AlertCircle className="h-16 w-16 text-yellow-500 mx-auto mb-4" />
+              <motion.div
+                initial={{ rotate: -10 }}
+                animate={{ rotate: 0 }}
+                transition={{ type: "spring" }}
+              >
+                <AlertCircle className="h-16 w-16 text-yellow-500 mx-auto mb-4" />
+              </motion.div>
             )}
 
             <h2 className="text-2xl font-bold mb-2">
@@ -179,24 +198,38 @@ export default function Quiz() {
 
             <p className="text-gray-600 mb-6">
               {quizResult?.score >= 70
-                ? "You've successfully completed the quiz."
-                : "You've completed the quiz, but might want to review the material again."}
+                ? "You've demonstrated excellent understanding of the material!"
+                : "Review the material and try again to improve your score."}
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <div className="text-3xl font-bold text-indigo-600">{quizResult?.score}%</div>
-                <div className="text-sm text-gray-500">Score</div>
+            <motion.div 
+              className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+            >
+              <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-100 transform hover:scale-105 transition-transform">
+                <div className="flex items-center justify-center space-x-2">
+                  <Trophy className="h-5 w-5 text-indigo-600" />
+                  <div className="text-3xl font-bold text-indigo-600">{quizResult?.score}%</div>
+                </div>
+                <div className="text-sm text-gray-500 mt-1">Score</div>
               </div>
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <div className="text-3xl font-bold text-indigo-600">+{quizResult?.xpEarned}</div>
-                <div className="text-sm text-gray-500">XP Earned</div>
+              <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-100 transform hover:scale-105 transition-transform">
+                <div className="flex items-center justify-center space-x-2">
+                  <Award className="h-5 w-5 text-indigo-600" />
+                  <div className="text-3xl font-bold text-indigo-600">+{quizResult?.xpEarned}</div>
+                </div>
+                <div className="text-sm text-gray-500 mt-1">XP Earned</div>
               </div>
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <div className="text-3xl font-bold text-indigo-600">+{quizResult?.coinsEarned}</div>
-                <div className="text-sm text-gray-500">Coins Earned</div>
+              <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-100 transform hover:scale-105 transition-transform">
+                <div className="flex items-center justify-center space-x-2">
+                  <BarChart2 className="h-5 w-5 text-indigo-600" />
+                  <div className="text-3xl font-bold text-indigo-600">+{quizResult?.coinsEarned}</div>
+                </div>
+                <div className="text-sm text-gray-500 mt-1">Coins Earned</div>
               </div>
-            </div>
+            </motion.div>
 
             <div className="mb-6">
               <h3 className="font-medium mb-2">Question Summary</h3>
@@ -214,33 +247,50 @@ export default function Quiz() {
               </div>
             </div>
 
-            <button
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.98 }}
               onClick={handleFinish}
-              className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition-colors"
+              className="bg-indigo-600 text-white px-6 py-3 rounded-md hover:bg-indigo-700 transition-colors shadow-md"
             >
               Back to Dashboard
-            </button>
+            </motion.button>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     )
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="max-w-2xl mx-auto px-4"
+    >
       <div className="flex items-center space-x-2 mb-6">
         <Link to={`/lesson/${id}`} className="text-gray-500 hover:text-gray-700">
           <ChevronLeft className="h-5 w-5" />
         </Link>
-        <h1 className="text-2xl font-bold">Quiz</h1>
+        <div>
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            Unlimited Knowledge Challenge
+          </h1>
+          <p className="text-sm text-gray-500">Test your knowledge, earn rewards, and grow smarter!</p>
+        </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="h-2 bg-gray-200">
-          <div
-            className="h-full bg-indigo-600 transition-all duration-300 ease-in-out"
-            style={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }}
-          ></div>
+      <motion.div 
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100"
+      >
+        <div className="h-2 bg-gray-200 relative overflow-hidden">
+          <motion.div
+            className="h-full bg-gradient-to-r from-indigo-500 to-indigo-600"
+            initial={{ width: 0 }}
+            animate={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+          ></motion.div>
         </div>
 
         <div className="p-6">
@@ -248,62 +298,110 @@ export default function Quiz() {
             <div className="text-sm font-medium text-gray-500">
               Question {currentQuestion + 1} of {questions.length}
             </div>
+            <div className="text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full">
+              {Math.round(((currentQuestion + 1) / questions.length) * 100)}% Complete
+            </div>
           </div>
 
-          <h2 className="text-xl font-medium mb-6">{questions[currentQuestion].text}</h2>
+          <motion.h2 
+            key={currentQuestion}
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 10 }}
+            transition={{ duration: 0.3 }}
+            className="text-xl font-medium mb-6"
+          >
+            {questions[currentQuestion].text}
+          </motion.h2>
 
           <div className="space-y-3 mb-8">
             {questions[currentQuestion].options.map((option, index) => (
-              <div
+              <motion.div
                 key={index}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
                 onClick={() => handleOptionSelect(index)}
-                className={`p-4 border rounded-md cursor-pointer transition-colors quiz-option ${
-                  selectedOption === index ? "bg-indigo-50 border-indigo-600" : "border-gray-300"
+                className={`p-4 border rounded-lg cursor-pointer transition-all duration-200 ${
+                  selectedOption === index 
+                    ? "bg-indigo-50 border-indigo-600 shadow-md" 
+                    : "border-gray-300 hover:border-indigo-300 hover:shadow-sm"
                 }`}
               >
                 <div className="flex items-center">
                   <div
-                    className={`w-5 h-5 rounded-full border flex items-center justify-center ${
-                      selectedOption === index ? "border-indigo-600" : "border-gray-300"
+                    className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${
+                      selectedOption === index ? "border-indigo-600 bg-indigo-100" : "border-gray-300"
                     }`}
                   >
-                    {selectedOption === index && <div className="w-3 h-3 rounded-full bg-indigo-600"></div>}
+                    {selectedOption === index && (
+                      <motion.div 
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="w-3 h-3 rounded-full bg-indigo-600"
+                      />
+                    )}
                   </div>
                   <div className="ml-3">{option}</div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
 
           <div className="flex justify-between">
-            <button
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.98 }}
               onClick={handlePrevious}
               disabled={currentQuestion === 0}
               className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Previous
-            </button>
+            </motion.button>
 
             {currentQuestion < questions.length - 1 ? (
-              <button
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={handleNext}
                 disabled={selectedOption === null}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
               >
                 Next
-              </button>
+              </motion.button>
             ) : (
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={handleSubmit}
                 disabled={quizSubmitting || answers.some((answer) => answer === null)}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-md hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
               >
-                {quizSubmitting ? "Submitting..." : "Submit"}
-              </button>
+                {quizSubmitting ? (
+                  <span className="flex items-center justify-center">
+                    <motion.span
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      className="inline-block mr-2"
+                    >
+                      <svg className="w-4 h-4" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z" />
+                      </svg>
+                    </motion.span>
+                    Submitting...
+                  </span>
+                ) : "Submit Quiz"}
+              </motion.button>
             )}
           </div>
         </div>
+      </motion.div>
+
+      <div className="mt-6 text-center text-sm text-gray-500">
+        <p>The stock market — where fortunes rise, fall, and dreams trade hands with every tick! 💸📈</p>
       </div>
-    </div>
+    </motion.div>
   )
 }
