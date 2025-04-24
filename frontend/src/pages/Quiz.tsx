@@ -37,7 +37,8 @@ export default function Quiz() {
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
-        const res = await axios.post(`${API_URL}/quiz`)
+        const res = await axios.post(`${API_URL}/quiz`,
+        )
         const data = res.data as {quiz: Question[]}
       
 

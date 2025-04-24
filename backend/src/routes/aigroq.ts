@@ -6,7 +6,7 @@ import groqController from "../controllers/qroq";
 const router = express.Router();
 
 router.post("/quiz",groqController.generateQuiz);
-router.post("/explain",isAuth, groqController.explainConcept);
+router.post("/explain", groqController.explainConcept);
 router.post("/sentiment",isAuth, groqController.analyzeSentiment);
 router.post("/challenge",isAuth, groqController.generateChallenge);
 

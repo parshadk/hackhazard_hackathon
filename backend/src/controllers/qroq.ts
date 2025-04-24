@@ -36,11 +36,23 @@ const generateQuiz = async (req:any, res:any) => {
   res.status(200).json({ quiz: parsed.quiz });
 };
 
+function cleanText(text:any) {
+  return text
+    .replace(/(\*\*|\*\*|__)/g, "")  
+    .replace(/\n/g, " ")              
+    .replace(/\s{2,}/g, " ")          
+    .trim();                          
+}
+
 const explainConcept = async (req:any, res:any) => {
-  const { concept, level } = req.body;
+  const { question } = req.body;
+  if (!question) {
+    return res.status(400).json({ error: "Question is required" });
+  }
   try {
-    const explanation = await groqService.explainConcept(concept, level);
-    res.status(200).json({ explanation });
+    const explanation = await groqService.explainConcept(question);
+    const cleanExplanation = cleanText(explanation);
+    res.status(200).json({ answer: cleanExplanation });
   } catch (error) {
     console.error("Error explaining concept:", error);
     res.status(500).json({ error: "Failed to explain concept" });

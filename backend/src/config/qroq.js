@@ -47,17 +47,22 @@ class GroqService {
     return completion.choices[0].message.content
   }
 
-  async explainConcept(concept, level) {
+  async explainConcept(question) {
+    const systemMessage = `
+      You are a Finance Educator bot. You answer any personal‑finance or investment question clearly and accurately.
+      If the user’s question is not about personal finance or investing, respond exactly:  Please ask me only personal finance or investment questions.
+      
+      `
     const completion = await this.groq.chat.completions.create({
       model: "llama-3.1-8b-instant",
       messages: [
         {
           role: "system",
-          content: "You are a finance tutor explaining concepts in simple terms.",
+          content:systemMessage,
         },
         {
           role: "user",
-          content: `Explain ${concept} in simple terms for a ${level} level student.`,
+          content: `Explain ${question} in simple terms for a student.`,
         },
       ],
       temperature: 0.6,

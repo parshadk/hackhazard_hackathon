@@ -8,7 +8,8 @@ import {
   LineChart,
   LogOut,
   Award,
-  Shield
+  Shield,
+  Bot
 } from "lucide-react"
 import { useState } from "react"
 
@@ -25,6 +26,7 @@ export default function Sidebar({ className = "" }: SidebarProps) {
     { name: "Courses", path: "/lessons", icon: BookOpen },
     // { name: "Wallet", path: "/wallet", icon: Wallet },
     { name: "Quiz", path: "/quiz", icon: BookOpen },
+    { name: "Explain with AI", path: "/explain", icon: Bot },
     { name: "Live Updates", path: "/live-updates", icon: LineChart },
     { name: "Profile", path: "/profile", icon: User },
   ]
