@@ -204,7 +204,7 @@ export default function Quiz() {
             </p>
 
             <motion.div 
-              className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8"
+              className=" grid-cols-1 md:grid-cols-3 gap-4 mb-8"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
