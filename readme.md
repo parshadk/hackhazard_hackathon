@@ -107,3 +107,23 @@ This project was built in a limited timeframe for a **hackathon**, and focuses o
 - Personalized course recommendations with AI.
 
 ---
+
+
+## 🐳 Running Locally
+### Clone it locally
+```
+git clone "https://github.com/parshadk/hackhazard_hackathon.git"
+cd hackhazard_hackathon
+```
+### Install backend dependencies and run backend
+```
+cd backend
+npm install
+npm run dev
+```
+### Install frontend dependencies and run frontend
+```
+cd frontend
+npm install
+npm run dev
+```
