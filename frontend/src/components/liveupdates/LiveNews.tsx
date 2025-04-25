@@ -35,7 +35,9 @@ const LiveNews = () => {
   const initializeNewsWebSocket = () => {
     setLoadingNews(true);
     setErrorNews(false);
-    const socket = new WebSocket('ws://35.153.107.170?type=news');
+    const socket = new WebSocket(`${import.meta.env.VITE_WS_URL}?type=news`);
+
+
     newsSocketRef.current = socket;
 
     socket.onopen = () => console.log('🟢 WebSocket opened for news');
