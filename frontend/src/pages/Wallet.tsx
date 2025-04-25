@@ -137,7 +137,7 @@ const Wallet = () => {
     const pdf = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
-      format: 'a5'
+      format: 'a1'
     });
     
     const imgProps = pdf.getImageProperties(imgData);

@@ -72,6 +72,26 @@ const LiveStocks: React.FC<{ onShowHistory: () => void }> = ({ onShowHistory }) 
     };
   }, []);
 
+  const renderChangeIndicator = (change: number | undefined, percentChange: number | undefined) => {
+    if (change === undefined || percentChange === undefined || isNaN(change) || isNaN(percentChange)) {
+      return <p className="text-xs text-gray-500 italic">No change data</p>;
+    }
+
+    const isProfit = change > 0;
+    const isLoss = change < 0;
+    const colorClass = isProfit ? 'text-green-600' : isLoss ? 'text-red-600' : 'text-gray-600';
+    const sign = change > 0 ? '+' : '';
+
+    return (
+      <p className={`text-xs ${colorClass} mb-1 flex items-center gap-1`}>
+        {sign}{Math.abs(change).toFixed(2)} ({sign}{Math.abs(percentChange).toFixed(2)}%)
+        {isProfit && <ArrowUpRight size={14} className="text-green-600" />}
+        {isLoss && <ArrowDownRight size={14} className="text-red-600" />}
+        <span className="ml-1 text-gray-500 italic">today</span>
+      </p>
+    );
+  };
+
   return (
     <section className="bg-white rounded-xl border border-gray-200 p-6 shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out">
       <div className="flex justify-between items-center mb-4">
@@ -94,7 +114,19 @@ const LiveStocks: React.FC<{ onShowHistory: () => void }> = ({ onShowHistory }) 
       ) : (
         <div className="grid grid-cols-2 gap-4">
           {stocks.slice(0, stockLimit).map((stock, index) => {
-            // ...data logic unchanged
+            const price = stock.price.toFixed(2);
+            const open = stock.open?.toFixed(2) ?? 'N/A';
+            const high = stock.high?.toFixed(2) ?? 'N/A';
+            const low = stock.low?.toFixed(2) ?? 'N/A';
+            const close = stock.previousClose?.toFixed(2) ?? 'N/A';
+            
+            const change = stock.previousClose !== undefined 
+              ? stock.price - stock.previousClose 
+              : undefined;
+            const percentChange = stock.previousClose !== undefined && change !== undefined
+              ? (change / stock.previousClose) * 100
+              : undefined;
+
             return (
               <div
                 key={index}
@@ -103,14 +135,7 @@ const LiveStocks: React.FC<{ onShowHistory: () => void }> = ({ onShowHistory }) 
                 <div>
                   <h3 className="text-sm font-medium text-gray-700 mb-1">{stock.symbol}</h3>
                   <p className="text-xl font-semibold text-gray-900 mb-1">${price}</p>
-                  {change !== null && percentChange !== null && (
-                    <p className={`text-xs ${colorClass} mb-1 flex items-center gap-1`}>
-                      {sign}{Number(change).toFixed(2)} ({sign}{Number(percentChange).toFixed(2)}%)
-                      {isProfit && <ArrowUpRight size={14} className="text-green-600" />}
-                      {isLoss && <ArrowDownRight size={14} className="text-red-600" />}
-                      <span className="ml-1 text-gray-500 italic">today</span>
-                    </p>
-                  )}
+                  {renderChangeIndicator(change, percentChange)}
                   <p className="text-[11px] text-gray-400 italic">
                     {format(new Date(stock.time), 'dd MMM, h:mm a')} IST
                   </p>

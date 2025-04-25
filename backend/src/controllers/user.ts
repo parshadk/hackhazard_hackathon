@@ -1,7 +1,7 @@
 import { User } from "../models/User";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import sendMail, { sendForgotMail } from "../middleware/sendMail";
+import { sendMail, sendForgotMail } from "../middleware/sendMail"; 
 import TryCatch from "../middleware/TryCatch";
 import { Request, Response, NextFunction } from "express";
 import Razorpay from 'razorpay';
