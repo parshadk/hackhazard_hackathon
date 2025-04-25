@@ -3,13 +3,14 @@ const Groq = require("groq-sdk");
 require("dotenv").config();
 
 class GroqService {
+  groq: any;
   constructor() {
     this.groq = new Groq({
       apiKey: process.env.GROQ_API_KEY,
     });
   }
 
-  async generateQuiz(topic, level) {
+  async generateQuiz(topic:any, level:any) {
 
     const prompt = `Generate a personalized finance quiz about Finance, SIps, Investments for a intermediate level student. return an array with  5 questions objects, each having:id, question labeled as text , options (array), correctAnswer.
     Don't include any additional text or explanations. The quiz should be in the following format:
@@ -47,7 +48,7 @@ class GroqService {
     return completion.choices[0].message.content
   }
 
-  async explainConcept(question) {
+  async explainConcept(question:any) {
     const systemMessage = `
       You are a Finance Educator bot. You answer any personal‑finance or investment question clearly and accurately.
       If the user’s question is not about personal finance or investing, respond exactly:  Please ask me only personal finance or investment questions.
@@ -71,7 +72,7 @@ class GroqService {
     return completion.choices[0].message.content;
   }
 
-  async analyzeMarketSentiment(newsData) {
+  async analyzeMarketSentiment(newsData:any) {
     const completion = await this.groq.chat.completions.create({
       model: "llama-3.1-8b-instant",
       messages: [
@@ -91,7 +92,7 @@ class GroqService {
     return completion.choices[0].message.content;
   }
 
-  async generateChallenge(currentEvent) {
+  async generateChallenge(currentEvent:any) {
     const completion = await this.groq.chat.completions.create({
       model: "llama-3.1-8b-instant",
       messages: [
