@@ -271,7 +271,7 @@ export default function Quiz() {
       <div className="flex items-center space-x-2 mb-6">
         <div>
           <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            Unlimited Knowledge Challenge
+            Unlimited Knowledge Challenge with AI generated questions
           </h1>
           <p className="text-sm text-gray-500">Test your knowledge, earn rewards, and grow smarter!</p>
         </div>

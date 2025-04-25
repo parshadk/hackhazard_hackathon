@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { CourseData } from "../context/CourseContext";
 import CourseCard from "../components/common/Card";
-
+import { Search } from "lucide-react";
 interface Course {
   _id: string;
   image: string;
@@ -13,9 +13,30 @@ interface Course {
 
 const Courses: React.FC = () => {
   const { courses, loading, error } = CourseData();
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Filtered courses based on searchTerm
+  const filteredCourses = courses?.filter((course: Course) =>
+    course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    course.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 px-4 sm:px-6 lg:px-8">
+      {/* Search Bar - Top Right */}
+      <div className="w-full mx-auto pb-4 sm:px-6 lg:px-8 flex justify-end items-start">
+        <div className=" w-full sm:w-auto flex justify-end items-center gap-2 px-4 py-2 border border-indigo-200 rounded-md shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-indigo-500">
+          <Search className="text-indigo-500" />
+          <input
+            type="text"
+            placeholder="Search courses..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full sm:w-72 border-none bg-transparent focus:outline-none"
+          />
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
         <div className="text-center mb-12">
@@ -25,12 +46,15 @@ const Courses: React.FC = () => {
           <p className="mt-5 max-w-xl mx-auto text-xl text-gray-500">
             Master new skills with our immersive learning experiences
           </p>
+          <div></div>
           <div className="mt-8 max-w-2xl mx-auto bg-indigo-50 rounded-lg p-4 border border-indigo-100">
             <p className="text-indigo-700 font-medium">
               "The beautiful thing about learning is that no one can take it away from you."
               <span className="block text-sm text-indigo-600 mt-1">— B.B. King</span>
             </p>
           </div>
+          
+          
         </div>
 
         {/* Courses Grid */}
@@ -51,12 +75,12 @@ const Courses: React.FC = () => {
               </div>
             </div>
           </div>
-        ) : courses && courses.length > 0 ? (
+        ) : filteredCourses && filteredCourses.length > 0 ? (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-              {courses.map((course: Course) => (
-                <CourseCard 
-                  key={course._id} 
+              {filteredCourses.map((course: Course) => (
+                <CourseCard
+                  key={course._id}
                   course={course}
                   className="transform hover:-translate-y-2 transition-transform duration-300"
                 />
@@ -65,7 +89,7 @@ const Courses: React.FC = () => {
             <div className="mt-12 text-center">
               <h3 className="text-2xl font-bold text-gray-800 mb-3">Ready to begin your learning journey?</h3>
               <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-                Each course is designed to take you from beginner to confident practitioner. 
+                Each course is designed to take you from beginner to confident practitioner.
                 Start with any course that sparks your curiosity!
               </p>
             </div>
@@ -85,9 +109,9 @@ const Courses: React.FC = () => {
                 d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
               />
             </svg>
-            <h3 className="mt-4 text-xl font-semibold text-gray-800">Our Knowledge Library is Growing</h3>
+            <h3 className="mt-4 text-xl font-semibold text-gray-800">No courses match your search</h3>
             <p className="mt-2 text-gray-600">
-              New courses are coming soon to help you expand your skillset.
+              Try a different keyword to find what you're looking for.
             </p>
           </div>
         )}
