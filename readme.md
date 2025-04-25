@@ -109,7 +109,7 @@ This project was built in a limited timeframe for a **hackathon**, and focuses o
 ---
 
 
-## 🐳 Running Locally
+##  Running Locally
 ### Clone it locally
 ```
 git clone "https://github.com/parshadk/hackhazard_hackathon.git"
