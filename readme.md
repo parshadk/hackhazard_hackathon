@@ -57,11 +57,17 @@
 
 ---
 
-## 🧠 Tech Stack
+## 🔧 Tech Stack
 
-| Frontend  | Backend  | AI + Realtime |
-|-----------|----------|----------------|
-| React + TypeScript + Tailwind | Node.js + Express + Mongoose | Groq AI + LLaMA, Fluvio (Infinyon Cloud) |
+| Category       | Tech Used                          |
+|-------------   |------------------------------------|
+| Frontend       | React, Vite, Tailwind CSS          |
+| Backend        | Node.js, Express, Mongoose         |
+| Realtime       | Fluvio, Infinyon Cloud             |
+| AI Engine      | Groq AI + LLaMA                    |
+| Payments       | Razorpay                           |
+| Auth           | JWT token based                    |
+| UI libraries   | ShadCN & Lucide-React              | 
 
 ---
 
