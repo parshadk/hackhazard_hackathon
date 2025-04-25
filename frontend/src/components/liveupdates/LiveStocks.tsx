@@ -22,7 +22,7 @@ const LiveStocks: React.FC<{ onShowHistory: () => void }> = ({ onShowHistory }) 
   const socketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    const socket = new WebSocket('ws://localhost:3000?type=stocks');
+    const socket = new WebSocket('ws://35.153.107.170/?type=stocks');
     socket.onopen = () => {
       console.log("🟢 WebSocket opened for stocks");
       setConnectionError(false);

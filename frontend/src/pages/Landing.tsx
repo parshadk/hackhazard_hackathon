@@ -1,7 +1,17 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Award, BookOpen, DollarSign, TrendingUp, BarChart2, Clock, Trophy, CheckCircle } from "lucide-react";
+import { useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Landing() {
+  const {user,loading} = useAuth()
+  const navigate = useNavigate()
+  useEffect(()=>{
+    if(user)navigate('/dashboard')
+  },[user,loading])
+
+
+  
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-slate-50 text-slate-800 flex flex-col">
       {/* Header with subtle animation */}
