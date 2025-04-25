@@ -9,6 +9,7 @@ import LoadingSpinner from "../components/ui/LoadingSpinner"
 interface Course {
   _id: string
   title: string
+  image:string
   slug: string
   level: string
   topic: string
@@ -62,7 +63,7 @@ export default function Dashboard() {
   if (loading) {
     return <LoadingSpinner />
   }
-
+//@ts-ignore
   const getThumbnailUrl = (thumbnail?: string) => {
     if (!thumbnail) return "https://via.placeholder.com/300x200?text=Course+Image"
     
@@ -79,7 +80,7 @@ export default function Dashboard() {
     // Default case - assume it's a local file path
     return `${API_URL}/${thumbnail}`
   }
-
+const  server = API_URL
   return (
     <div className="space-y-8">
       {/* Welcome */}
