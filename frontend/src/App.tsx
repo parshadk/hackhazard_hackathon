@@ -1,5 +1,5 @@
-import React, { Suspense, lazy } from "react"
-import { Routes, Route, Navigate } from "react-router-dom"
+import React, { Suspense, lazy, useEffect } from "react"
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom"
 import { Toaster } from "react-hot-toast"
 import { useAuth } from "./context/AuthContext"
 import Layout from "./components/layout/Layout"
@@ -40,6 +40,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 const App: React.FC = () => {
   const {user} = useAuth()
+  
+
   return (
     <>
       <Suspense fallback={<LoadingSpinner />}>

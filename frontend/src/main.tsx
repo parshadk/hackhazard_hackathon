@@ -9,7 +9,7 @@ import "./index.css"
 import { CourseContextProvider } from './context/CourseContext.tsx'
 import {ThemeProvider} from './components/theme-provider.tsx'
 
-export const server = "http://localhost:3000";
+export const server = "http://35.153.107.170";
 
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
