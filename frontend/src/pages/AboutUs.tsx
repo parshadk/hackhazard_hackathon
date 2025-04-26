@@ -5,7 +5,7 @@ export default function AboutUs() {
   const teamMembers = [
     {
       name: "Gaurav Kanojia",
-      role: "Founder & Developer",
+      role: "Contributor",
       linkedin: "https://www.linkedin.com/in/gaurav-kanojia-9071432a9/",
       github: "https://github.com/Gauravk100",
       initials: "GK"
@@ -14,7 +14,7 @@ export default function AboutUs() {
       name: "Parshad Keni",
       role: "Contributor",
       linkedin: "https://www.linkedin.com/in/parshad-keni/",
-      github: "https://www.linkedin.com/in/parshad-keni/",
+      github: "https://github.com/parshadk",
       initials: "PK"
     },
     {

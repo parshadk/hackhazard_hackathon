@@ -7,8 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "vercel-build": "npm install --f && vite build",
-    "netlify-build": "npm install --f && npm run vercel-build",
+    "vercel-build": "npm install --force && vite build",
+    "netlify-build": "npm install --force && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
