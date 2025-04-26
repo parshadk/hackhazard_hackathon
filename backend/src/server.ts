@@ -61,7 +61,24 @@ const STOCK_POLL_TO_DB = 600000;
 const MAX_CYCLE_SKIPS = Number(process.env.MAX_CYCLE_SKIPS) || 2;
 
 app.use(express.json());
-app.use(cors());
+const allowedOrigins = [
+  "https://edufinance-bytegg.netlify.app",
+  "http://localhost:5173", // 
+  "https://another-domain.com"
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // allow requests with no origin (like mobile apps or curl)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  methods: "GET,POST,PUT,DELETE",
+  credentials: true
+}));
 
 
 app.use("/uploads", express.static("uploads"));
