@@ -1,5 +1,5 @@
 //@ts-ignore
-import groqService from "../config/qroq.ts";
+import groqService from "../config/qroq";
 function sanitizeCompletion(raw:any) {
   const start = raw.indexOf("```");
   if (start === -1) {
