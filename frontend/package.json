@@ -7,6 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "vercel-build": "npm install --f && vite build",
+    "netlify-build": "npm install --f && npm run vercel-build",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -14,6 +16,7 @@
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^7.0.2",
     "@mui/material": "^7.0.2",
+    "@parcel/css": "^1.14.0",
     "@radix-ui/react-dropdown-menu": "^2.1.12",
     "@radix-ui/react-slot": "^1.2.0",
     "@tailwindcss/vite": "^4.1.4",
@@ -33,8 +36,11 @@
     "react-router-dom": "^7.5.1",
     "react-slot": "^0.1.2",
     "recharts": "^2.15.3",
+    "roll": "^1.3.2",
+    "rollup": "^4.40.0",
     "tailwind-merge": "^3.2.0",
-    "tailwindcss": "^4.1.4"
+    "tailwindcss": "^4.1.4",
+    "up": "^1.0.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
