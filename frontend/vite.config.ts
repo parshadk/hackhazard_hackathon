@@ -15,7 +15,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: "https://hackhazardhackathon-production.up.railway.app",
+        target: "http://35.153.107.170",
         changeOrigin: true,
         secure: false,
       },

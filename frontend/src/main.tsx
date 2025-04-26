@@ -9,8 +9,8 @@ import "./index.css"
 import { CourseContextProvider } from './context/CourseContext.tsx'
 
 
-// export const server = "http://35.153.107.170";
-export const server = "https://hackhazardhackathon-production.up.railway.app";
+export const server = "http://35.153.107.170";
+// export const server = "https://hackhazardhackathon-production.up.railway.app";
 
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
