@@ -15,7 +15,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: "https://edufinance-backend-8s2g.onrender.com",
+        target: "https://edufinance-backend-production.up.railway.app",
         changeOrigin: true,
         secure: false,
       },

@@ -9,7 +9,7 @@ import "./index.css"
 import { CourseContextProvider } from './context/CourseContext.tsx'
 
 
-export const server = "https://edufinance-backend-8s2g.onrender.com";
+export const server = "https://edufinance-backend-production.up.railway.app";
 // export const server = "https://hackhazardhackathon-production.up.railway.app";
 
 
