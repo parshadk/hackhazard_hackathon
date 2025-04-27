@@ -1,6 +1,6 @@
 # 💰 EduFinance
 
-**EduFinance** is a gamified financial literacy platform built to help students learn, engage, and grow in personal finance through interactive content, real-time insights, and AI-driven experiences. This project was built for a hackathon and focuses on intuitive learning and accessibility using cutting-edge tools like **Groq AI** and **Fluvio**.
+**EduFinance** is a gamified financial literacy platform built to help people to learn, engage, and grow in personal finance through interactive content, real-time insights, and AI-driven experiences. This project was built for a hackathon and focuses on intuitive learning and accessibility using cutting-edge tools like **Groq AI** and **Fluvio**.
 
 ---
 
