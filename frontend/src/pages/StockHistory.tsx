@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Button from '../components/common/Button';
 import { LineChart as LineChartIcon } from 'lucide-react';
 import LineGraph from '../components/stockhistory/LineGraph';
+import { server } from '@/main';
 
 interface StockData {
   symbol: string;
@@ -26,7 +27,7 @@ const StockHistory: React.FC = () => {
   useEffect(() => {
     const fetchStocks = async () => {
       try {
-        const response = await fetch('/api/stocks?_=' + Date.now(), {
+        const response = await fetch(server + '/api/stocks?_=' + Date.now(), {
           headers: { 'Cache-Control': 'no-cache' },
         });
 
@@ -34,6 +35,8 @@ const StockHistory: React.FC = () => {
 
         const fetchedStocks: StockData[] = await response.json();
         setStocks(fetchedStocks);
+        console.log(fetchedStocks);
+        
         setLoading(false);
         setConnectionError(false);
       } catch (error) {
